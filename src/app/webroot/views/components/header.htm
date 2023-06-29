@@ -1,0 +1,59 @@
+<template>
+
+    <img src="assets/img/logos/brand.png" class="-left -col-7" style="padding:1em">
+
+    <br>
+
+    <nav id='menu' class="-relative -left -content-center -col-7" style="text-transform:uppercase;;margin:height:3em">
+        <div>
+            <div>home</div> <i>·</i>
+            <div>i. a.</div> <i>·</i>
+            <div>bigdata</div> <i>·</i>
+            <div>gpt</div> <i>·</i>
+            <div>consultoria</div> <i>·</i>
+            <div>desenvolvimento</div> <i>·</i>
+            <div>contato</div>
+            <span></span>
+        </div>
+    </nav>
+
+    <style>
+        #menu > div > div {
+            height: 2em;
+            padding:1em;
+            float: left;
+            bottom:0;
+            cursor: pointer;
+        }
+        #menu > div > i {
+            float: left;
+            font-size:2em;
+            padding:.25em;
+            opacity: .32;
+        }
+        #menu > div > span {
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            height: .125em;
+            background-color: {{font}};
+        }
+    </style>
+
+    <script>
+
+        const pragmas_count = Object.keys(EPragmas).length - 1 ;;
+        const shift_bar = $('#menu > div > span').at() ;;
+
+        bootloader.onFinishLoading.add(_ => $('#menu>div>div').forEach((e, i) => e.on('click', _ => app.pragma = i)))
+        app.onPragmaChange.add(pragma => {
+            $('#menu > div > div').forEach((e, i) => {
+                if(i == pragma) {
+                    const { width, left } = e.getBoundingClientRect() ;;
+                    shift_bar.stop().anime({ left: `calc(${left}px - 0em)`, width: width + 'px' })
+                    e.stop().anime({ opacity: 1 })
+                } else e.stop().anime({ opacity: .32 })
+            })
+        })
+    </script>
+</template>

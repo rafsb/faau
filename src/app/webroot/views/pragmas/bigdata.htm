@@ -1,0 +1,87 @@
+
+<template>
+    <div id='bigdata' class="-relative -wrapper">
+
+        <nav class="-col-2 -left -bar">
+
+        </nav>
+
+        <div class="-relative -col-10 -left -bar">
+
+            <div class="-absolute -zero -row -avoid-pointer --shadow" style="z-index:10;display:none">
+                <div class="-col-7 -left -content-center" style="height:6em">
+                    <div class="-col-8" style="height:1em;transform: translateY(-1.125em); box-shadow: 0 0 4em black;"></div>
+                </div>
+            </div>
+
+            <div class="-row -bar -scrolls --text-stage" style="font-size: 1.5em;">
+                <span class="-col-7 -content-right -roboto-thin" style="font-size: 2em;padding:2.75em 0 1em 0">Big Data</span>
+
+                <div class="-col-7 -left">
+                    <p>A era dos dados está em pleno vapor, e o big data desempenha um papel fundamental nessa revolução.</p>
+                    <p style="margin-top:0">O termo "Big Data" tem sido cada vez mais mencionado nos últimos anos, à medida que a quantidade de dados gerados e coletados continua a crescer exponencialmente. No entanto, lidar com grandes volumes de dados de maneira eficiente e em escala é um desafio.</p>
+                    <p style="margin-top:0"> Como especialista em big data, trabalho com conjuntos de dados volumosos e complexos para extrair insights valiosos. Se você precisa lidar com a análise de dados, armazenamento eficiente ou visualização de informações, posso ajudar a transformar os dados em resultados significativos.</p>
+
+                    <div class="-row -content-center" style="font-size: 2em;padding:1.5em 0 2em">···</div>
+
+                    <ul>
+
+
+                        <li>
+                            <span class="-roboto-bold -right" style="padding-top:0em">Na sua empresa</span>
+                            <p>O Big Data pode auxiliar no dia a dia das empresas fornecendo insights valiosos sobre seus clientes, processos internos e mercado. Essas informações podem ser usadas para tomar decisões mais acertivas, identificar oportunidades de crescimento, melhorar a eficiência operacional e oferecer uma melhor experiência para os clientes.</p>
+                            <p style="margin-top:0">Para extrairmos o máximo de dados relevantes, faço uso das informaçõe já contidas em sua organização, cruzando-as com dados públicos, redes sociais, dados governamentais e diversas outras fontes que possam ser pertinentes.</p>
+                        </li>
+
+                        <li>
+                            <span class="-roboto-bold -right" style="padding-top:4em">Ferramentas</span>
+                            <p>A Fundação Apache, nos fornece algumas das ferramentas mais difundidas deste meio, como: Hadoop, Spark, Kafka e Cassandra; Estas ferramentas dão suporte a uma variedade de técnicas e abordagens possíveis, permitindo o processamento distribuído de grandes conjuntos de dados, estruturados ou não, em clusters de computadores com um modelo de programação escalável.</p>
+                            <p style="margin-top:0">E precisamos falar de Elasticsearch! Essa é uma solução de busca e análise distribuída que permite o armazenamento e a consulta eficiente de grandes volumes de dados, fornecendo recursos avançados de pesquisa em tempo real, como pesquisa de texto completo, análise de dados e visualização de resultados. O Elasticsearch é amplamente utilizado para construir aplicativos de análise de Big Data, painéis de controle interativos e sistemas de busca eficientes.</p>
+                            <p style="margin-top:0">Há a necessidade de fazer menção honrosa ao bom trabalho feito por Google, Microsoft e Amazon em suas plataforma de Cloud, que dão suporte a todas as abordagens necessárias.</p>
+                            <p style="margin-top:0">Porém...</p>
+                            <p style="margin-top:0">Muitos dados que podem trazer muito valor às análises estão espalhados pela internet afora, e nestes casos, minha especialidade (uma das!), é a captura de dados não estruturados pela web afora, através de Scrappers, Crawlers e API's.</p>
+                        </li>
+                    </ul>
+
+                    <div class="-row -content-center" style="font-size: 2em;padding:1.5em 0 2em">···</div>
+
+                    <p>O Big Data apresenta desafios e oportunidades únicas para as organizações. Os frameworks e tecnologias mencionados acima fornecem as ferramentas necessárias para armazenar, processar e extrair insights valiosos de grandes volumes de dados. À medida que a quantidade de dados continua a crescer, essas tecnologias se tornam ainda mais essenciais para impulsionar a inovação, a tomada de decisões informadas e o desenvolvimento de soluções inteligentes em diversas áreas, desde a análise de mercado até a medicina de precisão. Portanto, se você deseja desvendar os segredos ocultos em seus dados, não deixe de entrar em contato comigo, já!</p>
+
+                    <div class="-row -content-center" style="padding:4em 0;opacity:.32">
+                        <img class="-col-4 -pointer" src="logos/arrow.svg" onclick="window.app.pragma = window.app.current_pragma + 1">
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="-fixed -zero-bottom-left -col-7 -content-center" style="height:6em;left:12%">
+                <div class="-col-8" style="height:1em;transform: translateY(6em); box-shadow: 0 0 4em black;bottom:0"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <style>
+        #bigdata p {
+            text-indent:4em;
+            text-align: justify;
+        }
+    </style>
+
+    <script>
+
+        const
+        shadow = $('#bigdata .--shadow')[0]
+        , scrollev = new Throttle(e => {
+            const { scrollTop } = e.target ;;
+            if(scrollTop > 10) shadow.show()
+            else shadow.hide()
+        }, 32)
+        ;;
+        $('#bigdata .--text-stage')[0].on('scroll', e => scrollev.fire(e))
+
+        $('#app')[0].app(IMG("bg/bigdata.png", "-fixed -zero-top-right --big-picture -bar -avoid-pointer", { opacity:0, top:'2em' }))
+        setTimeout(_ => $('.--big-picture')[0].anime({ opacity:.08, top:0 }, AL), 256)
+    </script>
+</template>

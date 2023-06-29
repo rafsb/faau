@@ -1,0 +1,13 @@
+{
+    "BACKGROUND"    : "#1E1E1E"
+    , "FOREGROUND"  : "#2B2B2B"
+    , "FONT"        : "#E2F2F2"
+    , "FONTBLURED"  : "#464646"
+    , "SPAN"        : "#007ACC"
+    , "DISABLED"    : "#C74E39"
+    , "MASK1"       : "#00000014"
+    , "MASK2"       : "#00000028"
+    , "MASK3"       : "#00000051"
+    , "MASK4"       : "#000000A3"
+    , "type"        : "dark"
+}

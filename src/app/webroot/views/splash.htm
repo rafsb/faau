@@ -1,0 +1,49 @@
+<template>
+
+    <main class='-fixed -wrapper --splash' style="background-image:linear-gradient(to top right, #fff, #aaa);z-index:10000"></main>
+
+    <script>
+
+        if(!app.flags.SPLASH) {
+            app.flags.SPLASH = true
+
+            function logo_animation(svg) {
+
+                if(bootloader.alreadyLoaded) return
+
+                svg.$('ellipse').forEach(ell => ell.css({ opacity:0 }))
+
+                svg.$("path").forEach((path, i) => path.anime({opacity:0, "stroke-dasharray": path.getTotalLength(), "stroke-dashoffset": path.getTotalLength() }).then(path => path.anime({
+                    opacity:1
+                    , "stroke-dashoffset":0
+                    , stroke:'{{midnight_blue}}'
+                }, AL*2, AL+AL/2*(i+1)).then(path => path.has('st2') && path.anime({ "stroke-dasharray":'6,12' }, AL*2))))
+                svg.$('ellipse').forEach((ell, i) => setTimeout(_ => ell.anime({ opacity: 1 }, AL) , AL + AL * i))
+
+                setTimeout(_ => {
+                    bootloader.ready('splash')
+                    logo_animation(svg)
+                }, 500)
+            }
+
+            let
+            splash = $(".--splash").at().app(
+                DIV("-fixed -zero-bottom -row").app(DIV("--boot-progress -left", { width:0, background:"{{black}}", height:".5em", border:'.125em solid white' }))
+            )
+            ;;
+
+            GET("/assets/img/logos/logo.svg", logo => {
+                logo = logo.morph()[0].addClass('-fixed -zero-bottom-right').css({ height:'20%', margin:'4em' })
+                splash.app(logo)
+                logo.$('path, ellipse').forEach(e => e.anime({ opacity:0 }))
+                setTimeout(logo_animation, AL*2, logo)
+            })
+
+            bootloader.onReadyStateChange.add(p => $('.--boot-progress').anime({ width: `${p*100}%` }))
+
+            bootloader.onFinishLoading.add(_ => splash.desappear(AL, true))
+
+        }
+    </script>
+
+</template>

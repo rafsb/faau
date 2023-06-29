@@ -1,0 +1,34 @@
+<template>
+    <!-- HOME -->
+    <div class='-wrapper -no-scrolls' style="background-image: linear-gradient(to top right, {{background}}, {{foreground}});">
+        <div class="--self">
+            <img src="assets/img/face.png" class="-fixed -zero-bottom-right --animated" style="height:90vh;opacity:.08">
+            <img src="assets/img/face.png" class="-fixed -zero-bottom-right" style="height:90vh;opacity:.16">
+        </div>
+        <header id='head' class="-row -left"></header>
+        <main id="stage" class="-row -left" style="top:16em;height:calc(100vh - 13em);"></main>
+    </div>
+    <style>
+        .--animated {
+
+        }
+    </style>
+    <script>
+        (async _ => {
+            app.load('components/header.htm', null, $('header#head')[0])
+            const
+            h = window.innerHeight
+            , w = window.innerWidth
+            , img2anim = $('.--animated')[0]
+            , mousemove = new Throttle(e => {
+                let { clientX:x, clientY:y } = e ;;
+                x = (x / w - .5) * .08
+                y = (y / h - .5) * .08
+                img2anim.stop().anime({ transform: `skew(${x}rad, ${y}rad)` })
+            }, 128)
+            window.onmousemove = function(e) { mousemove.fire(e) }
+            bootloader.ready('home')
+        })()
+    </script>
+
+</template>

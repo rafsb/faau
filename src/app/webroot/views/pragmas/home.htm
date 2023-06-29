@@ -1,0 +1,43 @@
+<template>
+    <div id='home' class="-relative -wrapper -content-right" style="padding:8em 2em">
+        <div class="-left -roboto-thin -content-right -col-7" style="font-size: 1.5em;padding: 0 .25em 0 20% ;">
+            <span style="font-size: 2em;">Bem-vindo!</span>
+            <br><br>
+            Sou um desenvolvedor apaixonado por código! Aqui você encontrará um espaço para entender minha visão sobre as tecnologias que revolucionam o mundo.<br><br>
+            Porque juntos, podemos mudar o mundo uma linha de cada vez.<br><br>
+            <nav class="-row -content-right" >
+                <a class="-right -only-pointer -tooltip" data-tip="Github" href="https://github.com/rafsb" target="_blank">
+                    <img class="-centered" src="logos/github.svg">
+                </a>
+                <a class="-right -only-pointer -tooltip" data-tip="Twitter" href="https://twitter.com/__rafsb" target="_blank">
+                    <img class="-centered" src="logos/twitter.svg">
+                </a>
+                <a class="-right -only-pointer -tooltip" data-tip="LinkedIn" href="https://www.linkedin.com/in/rafaelsbertolini/" target="_blank">
+                    <img class="-centered" src="logos/linkedin.svg">
+                </a>
+                <a class="-right -only-pointer -tooltip" data-tip="Instagram" href="https://www.instagram.com/__rafsb/" target="_blank">
+                    <img class="-centered" src="logos/instagram.svg">
+                </a>
+                <a class="-right -only-pointer -tooltip" data-tip="Facebook" href="https://www.facebook.com/rafaelsbertolini" target="_blank">
+                    <img class="-centered" src="logos/facebook.svg">
+                </a>
+            </nav>
+        </div>
+        <style>
+            #home nav > a {
+                position: relative;
+                height: 1.5em;
+                width: 1.5em;
+                margin-left: .25em;
+            }
+            #home nav > a:hover {
+                background: {{foreground}};
+                filter: invert(1)
+            }
+            #home nav > a > img {
+                height:1em;
+                width:1em;
+            }
+        </style>
+    </div>
+</template>

@@ -1,0 +1,13 @@
+/* FONTS * /
+
+ @import url('https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,600,900&display=swap');
+.-sourcesans-light  { font-family: 'Source Sans Pro', sans-serif; font-weight: 300; }
+.-sourcesans		{ font-family: 'Source Sans Pro', sans-serif; font-weight: 600; }
+.-sourcesans-bold   { font-family: 'Source Sans Pro', sans-serif; font-weight: 900; }
+*/
+
+@import url('https://fonts.googleapis.com/css?family=Roboto:100,300,500,900&display=swap');
+.-roboto-thin   { font-family: 'Roboto', sans-serif; font-weight: 100; }
+.-roboto-light  { font-family: 'Roboto', sans-serif; font-weight: 300; }
+.-roboto        { font-family: 'Roboto', sans-serif; font-weight: 500; }
+.-roboto-bold   { font-family: 'Roboto', sans-serif; font-weight: 900; }

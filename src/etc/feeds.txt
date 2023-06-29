@@ -1,0 +1,39 @@
+# atualidades
+https://www.gazetadopovo.com.br/feed/rss/opiniao.xml
+https://www.gazetadopovo.com.br/feed/rss/vida-e-cidadania.xml
+https://www.gazetadopovo.com.br/feed/rss/vozes/jogos-de-guerra.xml
+http://rss.uol.com.br/feed/noticias.xml
+http://rss.uol.com.br/feed/cinema.xml
+https://jornaldebrasilia.com.br/feed/
+https://www.fashionismo.com.br/feed/
+
+# Política
+https://www.gazetadopovo.com.br/feed/rss/republica.xml
+https://www.gazetadopovo.com.br/feed/rss/vozes/caio-coppolla.xml
+https://www.gazetadopovo.com.br/feed/rss/vozes/jr-guzzo.xml
+https://www.gazetadopovo.com.br/feed/rss/rodrigo-constantino.xml
+https://www.gazetadopovo.com.br/feed/rss/vozes/alexandre-garcia.xml
+https://www.gazetadopovo.com.br/feed/rss/vozes/luis-ernesto-lacombe.xml
+https://www.gazetadopovo.com.br/feed/rss/vozes/polzonoff.xml
+https://www.gazetadopovo.com.br/feed/rss/vozes/thamea-danelon.xml
+https://www.gazetadopovo.com.br/feed/rss/vozes/diogo-schelp.xml
+https://www.gazetadopovo.com.br/feed/rss/vozes/guilherme-fiuza.xml
+https://www.gazetadopovo.com.br/feed/rss/vozes/flavio-quintela.xml
+https://www.gazetadopovo.com.br/feed/rss/vozes/flavio-gordon.xml
+https://www.gazetadopovo.com.br/feed/rss/economia.xml
+https://www.gazetadopovo.com.br/feed/rss/vozes/salim-mattar.xml
+http://rss.uol.com.br/feed/economia.xml
+https://braziljournal.com/feed/
+https://www.gazetadopovo.com.br/feed/rss/educacao.xml
+
+# esportes
+https://www.umdoisesportes.com.br/feed/rss/futebol.xml
+https://www.uol.com.br/esporte/ultimas/index.xml
+https://www.uol.com.br/esporte/futebol/ultimas/index.xml
+http://rss.uol.com.br/feed/jogos.xml
+https://www.uol.com.br/esporte/basquete/ultimas/index.xml
+https://www.uol.com.br/esporte/futebol/clubes/flamengo.xml
+https://www.uol.com.br/esporte/futebol/clubes/corinthians.xml
+
+# Tecnologia
+http://rss.uol.com.br/feed/tecnologia.xml
