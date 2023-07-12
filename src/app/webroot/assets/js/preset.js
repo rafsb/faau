@@ -26,8 +26,7 @@ window.ELocales = Object.freeze({
 })
 
 const
-wsport = (location.port + "").slice(0, 2) + (location.port + "").slice(0, 2)
-, ws = new WebSocket('wss://' + location.hostname + ':' + wsport)
+ws = new WebSocket('wss://' + location.hostname + ':' + location.port)
 , socket_callbacks = { }
 , sock_sender = req => {
     if(ws.readyState === 1) ws.send(req)

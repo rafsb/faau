@@ -10,8 +10,6 @@ global.VERSION          = process.env.VERSION          || "0.0.1-alpha"
 global.DB_DRIVER        = process.env.DB_DRIVER        || "iostore"
 global.DB_NAME          = process.env.DB_NAME          || "core"
 global.DB_PK            = process.env.DB_PK            || "default"
-global.DB_KEY           = process.env.DB_KEY           || ""
-global.DB_ENDPOINT      = process.env.DB_ENDPOINT      || ""
 global.SESSION_DURATION = process.env.SESSION_DURATION || 24 * 60
 global.ROOT             = __dirname + '/src/'
 
@@ -23,6 +21,8 @@ path        = require('path')
 , express   = require('express')
 , parser    = require('body-parser')
 , app       = express()
+, key       = fio.read("etc/keys/private.key")
+, cert       = fio.read("etc/keys/certificate.crt")
 ;;
 
 global.KEY = fio.read('/etc/keys/private.key')
@@ -65,12 +65,13 @@ app.keepAliveTimeout = 0
 // *                 server settings                   *
 // *---------------------------------------------------*
 try {
-    require('./src/lib/fsocket')
-    require("http").createServer(app).listen(PORT)
+    const https = require("https").createServer({key, cert}, app) ;;
+    https.listen(PORT)
+    require('./src/lib/fsocket')(https)
     console.log(
         ETerminalColors.BG_BLUE
         + ETerminalColors.FT_WHITE
-        + ' >>> SERVER RUNNING ON PORT/SOCKET ' + PORT + '/' + SOCKET + ' at ' + fdate.as() + ' <<< '
+        + ' >>> SERVER RUNNING ON PORT/SOCKET ' + PORT + ' at ' + fdate.as() + ' <<< '
         + ETerminalColors.RESET
     )
 } catch (e) {
