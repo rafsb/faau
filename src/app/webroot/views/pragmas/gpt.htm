@@ -1,89 +1,74 @@
 <template>
     <div id='gpt' class="-relative -wrapper">
 
-        <nav class="-col-2 -left -bar">
-
-        </nav>
-
-        <div class="-relative -col-10 -left -bar">
-
-            <div class="-absolute -zero -row -avoid-pointer --shadow" style="z-index:10;display:none">
-                <div class="-col-7 -left -content-center" style="height:6em">
-                    <div class="-col-8" style="height:1em;transform: translateY(-1.125em); box-shadow: 0 0 4em black;"></div>
-                </div>
+        <div class="-absolute -zero -row -avoid-pointer --shadow" style="z-index:10;opacity:0;">
+            <div class="-row -content-center" style="height:6em">
+                <div class="-col-4" style="height:1em;transform: translateY(-1.125em); box-shadow: 0 0 4em black;"></div>
             </div>
+        </div>
 
-            <div class="-row -bar -scrolls --text-stage" style="font-size: 1.5em;">
-                <span class="-col-7 -content-right -roboto-thin" style="font-size: 2em;padding:2.75em 0 1em 0">OpenAI ChatGPT</span>
+        <div class="-row -bar -scrolls --text-stage">
 
-                <div class="-col-7 -left">
-                    <p>GPT (sigla em inglês para Processamento de Linguagem Natural) é uma área emocionante que se concentra na compreensão e geração de texto coeso por máquinas. Em minha opnião, estamos diante de um divisor de águas no mundo da computação, comparável à criação de interface gráfica para os sistemas operacionais nos anos 90!</p>
-                    <p style="margin-top:0">O que vemos é apenas o embrião de uma forma revolucionária de interação de pessoas comuns com máquinas. Nos próximos anos, com a evolução dos hardwares que acompanham a tecnologia, veremos muitas mudanças nas vidas das pessoas. E para melhor!</p>
+            <div class="-col-8 -content-left" style="padding-top: 4em;">
 
-                    <div class="-row -content-center" style="font-size: 2em;padding:1.5em 0 2em">···</div>
+                <span class="-row -content-left" style="font-size: 2em;">OpenAI ChatGPT</span>
+                <div class="-row"><div class="-col-1 -left" style="border-bottom: 1px solid {{dark3}};"></div></div>
 
-                    <ul>
+                <p>GPT (sigla em inglês para Processamento de Linguagem Natural) é uma área emocionante que se concentra na compreensão e geração de texto coeso por máquinas. Em minha opnião, estamos diante de um divisor de águas no mundo da computação, comparável à criação de interface gráfica para os sistemas operacionais nos anos 90!</p>
+                <p style="margin-top:0">O que vemos é apenas o embrião de uma forma revolucionária de interação de pessoas comuns com máquinas. Nos próximos anos, com a evolução dos hardwares que acompanham a tecnologia, veremos muitas mudanças nas vidas das pessoas. E para melhor!</p>
 
-                        <li>
-                            <span class="-roboto-bold -right" style="padding-top:0em">O quê é?</span>
-                            <p>Parece consenso por aí que o ChatGPT é uma ferramenta que tem um impacto significativo no atendimento ao cliente. Empresas de diversos setores podem implementar assistentes virtuais baseados na tecnologia para fornecer suporte rápido e eficiente aos clientes. O Foco aqui está com certeza nos chatbots, ou nos assistentes de triagem virtual que encontramos nos sites institucionais de grandes empresas. Esses assistentes podem responder perguntas frequentes, ajudar na resolução de problemas e oferecer recomendações personalizadas. O resultado é um atendimento ao cliente aprimorado, disponível 24 horas por dia, 7 dias por semana, que pode reduzir custos e melhorar a satisfação do cliente.</p>
-                            <p style="margin-top:0">Mas...</p>
-                            <p style="margin-top:0">Minhas experiências recentes tem dado resultados bastante diferentes, inexplorados e sobretudo promissores! Falo do uso desta tecnologia para auxiliar na coesão de filtragem e entendimento de grandes volumes de dados textuais, trazendo informações extremamente importantes e altamete relevantes para o trato diário das empresas, segmentando notícias, press-releases ou artigos acadêmicos de qualquer lugar do mundo e em qualquer idioma!</p>
-                            <p style="margin-top:0">Se isso parece interessante, precisamos tomar um café para eu te contar mais, é muito assunto para pouca tela!</p>
-                        </li>
+                <div class="-row -content-center" style="font-size: 2em;padding: .5em">···</div>
 
-                        <li>
-                            <span class="-roboto-bold -right" style="padding-top:4em">Auxiliando em Processos de Tomada de Decisão</span>
-                            <p>O ChatGPT também pode ser uma ferramenta valiosa para auxiliar em processos de tomada de decisão. Ele pode fornecer informações relevantes, dados estatísticos e perspectivas úteis para apoiar a análise e a escolha de melhores estratégias de negócios. Ao receber insights rápidos e confiáveis do ChatGPT, os gestores e executivos podem tomar decisões mais embasadas, agilizando os processos e melhorando a eficiência geral da empresa.</p>
-                        </li>
+                <!-- <span class="-roboto-bold -right" style="padding-top:2em">O quê é?</span> -->
+                <span class="-row -content-left" style="font-size: 1.5em;">O que é?</span>
+                <p>Parece consenso por aí que o ChatGPT é uma ferramenta que tem um impacto significativo no atendimento ao cliente. Empresas de diversos setores podem implementar assistentes virtuais baseados na tecnologia para fornecer suporte rápido e eficiente aos clientes. O Foco aqui está com certeza nos chatbots, ou nos assistentes de triagem virtual que encontramos nos sites institucionais de grandes empresas. Esses assistentes podem responder perguntas frequentes, ajudar na resolução de problemas e oferecer recomendações personalizadas. O resultado é um atendimento ao cliente aprimorado, disponível 24 horas por dia, 7 dias por semana, que pode reduzir custos e melhorar a satisfação do cliente.</p>
+                <p style="margin-top:0">Mas...</p>
+                <p style="margin-top:0">Minhas experiências recentes tem dado resultados bastante diferentes, inexplorados e sobretudo promissores! Falo do uso desta tecnologia para auxiliar na coesão de filtragem e entendimento de grandes volumes de dados textuais, trazendo informações extremamente importantes e altamete relevantes para o trato diário das empresas, segmentando notícias, press-releases ou artigos acadêmicos de qualquer lugar do mundo e em qualquer idioma!</p>
+                <p style="margin-top:0">Se isso parece interessante, precisamos tomar um café para eu te contar mais, é muito assunto para pouca tela!</p>
 
-                        <li>
-                            <span class="-roboto-bold -right" style="padding-top:4em">Automatizando Tarefas Repetitivas</span>
-                            <p>Outro benefício do ChatGPT é sua capacidade de automatizar tarefas repetitivas. Com a integração do ChatGPT em sistemas empresariais, é possível automatizar o preenchimento de formulários, responder a e-mails padrão e realizar outras tarefas rotineiras. Isso libera tempo e recursos para que os funcionários possam se concentrar em atividades de maior valor, como análise de dados, tomada de decisões estratégicas e interações com os clientes.</p>
-                        </li>
-                    </ul>
+                <!-- <span class="-roboto-bold -right" style="padding-top:2em">Auxiliando em Processos de Tomada de Decisão</span> -->
+                <span class="-row -content-left" style="font-size: 1.5em;padding-top:1em">Auxiliando em Processos de Tomada de Decisão</span>
+                <p>O ChatGPT também pode ser uma ferramenta valiosa para auxiliar em processos de tomada de decisão. Ele pode fornecer informações relevantes, dados estatísticos e perspectivas úteis para apoiar a análise e a escolha de melhores estratégias de negócios. Ao receber insights rápidos e confiáveis do ChatGPT, os gestores e executivos podem tomar decisões mais embasadas, agilizando os processos e melhorando a eficiência geral da empresa.</p>
 
-                    <div class="-row -content-center" style="font-size: 2em;padding:1.5em 0 2em">···</div>
+                <!-- <span class="-roboto-bold -right" style="padding-top:2em">Automatizando Tarefas Repetitivas</span> -->
+                <span class="-row -content-left" style="font-size: 1.5em;padding-top:1em">Automatizando Tarefas Repetitivas</span>
+                <p>Outro benefício do ChatGPT é sua capacidade de automatizar tarefas repetitivas. Com a integração do ChatGPT em sistemas empresariais, é possível automatizar o preenchimento de formulários, responder a e-mails padrão e realizar outras tarefas rotineiras. Isso libera tempo e recursos para que os funcionários possam se concentrar em atividades de maior valor, como análise de dados, tomada de decisões estratégicas e interações com os clientes.</p>
 
-                    <p>O ChatGPT está moldando o futuro da computação e transformando o dia a dia das empresas. Sua capacidade de compreender e gerar texto natural surpreende até profissionais da comunicação!</p>
-                    <p style="margin-top:0">Uma prova de como esta tecnologia facilita o trabalho de qualquer individuo, é a de que todo o conteúdo deste site foi produzido com poucas interações entre o programador que vos escreve e a API implementada no meu computador da OpenAI.</p>
-                    <p style="margin-top:0">Descubra como a tecnologia de GPT pode aprimorar a experiência do usuário e impulsionar a eficiência da sua empresa, é só chamar! Estou a um whatsapp de distância!</p>
+                <div class="-row -content-center" style="font-size: 2em;padding: .5em">···</div>
 
-                    <div class="-row -content-center" style="padding:4em 0;opacity:.32">
-                        <img class="-col-4 -pointer" src="logos/arrow.svg" onclick="window.app.pragma = window.app.current_pragma + 1">
-                    </div>
+                <p>O ChatGPT está moldando o futuro da computação e transformando o dia a dia das empresas. Sua capacidade de compreender e gerar texto natural surpreende até profissionais da comunicação!</p>
+                <p style="margin-top:0">Uma prova de como esta tecnologia facilita o trabalho de qualquer individuo, é a de que todo o conteúdo deste site foi produzido com poucas interações entre o programador que vos escreve e a API implementada no meu computador da OpenAI.</p>
+                <p style="margin-top:0">Descubra como a tecnologia de GPT pode aprimorar a experiência do usuário e impulsionar a eficiência da sua empresa, é só chamar! Estou a um whatsapp de distância!</p>
 
+                <div class="-row -content-center" style="padding:4em 0;opacity:.32">
+                    <img class="-col-4 -pointer" src="logos/arrow.svg" onclick="{ fw.pragma = fw.current_pragma + 1 }">
                 </div>
-            </div>
 
-            <div class="-fixed -zero-bottom-left -col-7 -content-center" style="height:6em;left:12%">
-                <div class="-col-8" style="height:1em;transform: translateY(6em); box-shadow: 0 0 4em black;bottom:0"></div>
             </div>
 
         </div>
 
+        <div class="-fixed -zero-bottom -row -content-center -avoid-pointer" style="height:6em;">
+            <div class="-col-8" style="height:1em;transform: translateY(6em); box-shadow: 0 0 4em black;bottom:0"></div>
+        </div>
+
     </div>
 
-    <style>
-        #gpt p {
-            text-indent:4em;
-            text-align: justify;
-        }
-    </style>
-
     <script>
+        (function(){
 
-        const
-        shadow = $('#gpt .--shadow')[0]
-        , scrollev = new Throttle(e => {
-            const { scrollTop } = e.target ;;
-            if(scrollTop > 10) shadow.show()
-            else shadow.hide()
-        }, 32)
-        ;;
-        $('#gpt .--text-stage')[0].on('scroll', e => scrollev.fire(e))
+            const
+            shadow = $('#gpt .--shadow')[0]
+            , scrollev = new throttle(e => {
+                const { scrollTop } = e.target ;;
+                if(scrollTop > 10) shadow.stop().anime({ opacity: 1 })
+                else shadow.stop().anime({ opacity: 0 })
+            }, 32)
+            ;;
+            $('#gpt .--text-stage')[0].on('scroll', e => scrollev.fire(e))
 
-        $('#app')[0].app(IMG("bg/gpt.png", "-fixed -zero-top-right --big-picture -bar -avoid-pointer", { opacity:0, top:'2em' }))
-        setTimeout(_ => $('.--big-picture')[0].anime({ opacity:.16, top:0 }, AL), 256)
+            // $('#app')[0].app(IMG("bg/gpt.png", "-fixed -zero-top-right --big-picture -bar -avoid-pointer", { opacity:0, top:'2em' }))
+            // setTimeout(_ => $('.--big-picture')[0].anime({ opacity:.16, top:0 }, AL), 256)
+        })()
     </script>
 </template>

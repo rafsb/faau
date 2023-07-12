@@ -32,7 +32,7 @@
             )
             ;;
 
-            GET("/assets/img/logos/logo.svg", logo => {
+            GET("logos/logo.svg", logo => {
                 logo = logo.morph()[0].addClass('-fixed -zero-bottom-right').css({ height:'20%', margin:'4em' })
                 splash.app(logo)
                 logo.$('path, ellipse').forEach(e => e.anime({ opacity:0 }))

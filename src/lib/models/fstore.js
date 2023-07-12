@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------------------------
- * IOStore
+ * fstore
  *--------------------------------------------------------------------------------------------*/
 
 const
@@ -7,16 +7,16 @@ io    = require("../utils/fio")
 , date  = require("../utils/fdate")
 ;;
 
-class iostore {
+class fstore {
 
     static db_name = global.DB_NAME || `store_db`
 
     static load(name){
-        return new iostore(name)
+        return new fstore(name)
     }
 
     static cast(name) {
-        return new iostore(name)
+        return new fstore(name)
     }
 
     static log() {
@@ -24,7 +24,7 @@ class iostore {
     }
 
     constructor(name){
-        this.load(name ? name : iostore.db_name)
+        this.load(name ? name : fstore.db_name)
     }
 
     save(fn) {
@@ -108,9 +108,9 @@ class iostore {
     }
 
     reload(options) {
-        return new iostore(options)
+        return new fstore(options)
     }
 
 }
 
-module.exports = iostore
+module.exports = fstore

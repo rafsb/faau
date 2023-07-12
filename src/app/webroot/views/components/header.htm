@@ -1,12 +1,12 @@
 <template>
 
-    <img src="assets/img/logos/brand.png" class="-left -col-7" style="padding:1em">
+    <div class="-relative -row -content-center" style="padding-top:2em">
+        <img src="assets/img/logos/brand.png" class="-col-3">
+    </div>
 
-    <br>
-
-    <nav id='menu' class="-relative -left -content-center -col-7" style="text-transform:uppercase;;margin:height:3em">
+    <nav id='menu' class="-relative -row -content-center" style="text-transform:uppercase;height:3em;">
         <div>
-            <div>home</div> <i>·</i>
+            <div>welcome</div> <i>·</i>
             <div>i. a.</div> <i>·</i>
             <div>bigdata</div> <i>·</i>
             <div>gpt</div> <i>·</i>
@@ -17,7 +17,13 @@
         </div>
     </nav>
 
+
+
     <style>
+        /* #menu > div > div:last-child{
+            background:{{light1}};
+            border-radius:1em;
+        } */
         #menu > div > div {
             height: 2em;
             padding:1em;
@@ -41,10 +47,7 @@
     </style>
 
     <script>
-
-        const pragmas_count = Object.keys(EPragmas).length - 1 ;;
         const shift_bar = $('#menu > div > span').at() ;;
-
         bootloader.onFinishLoading.add(_ => $('#menu>div>div').forEach((e, i) => e.on('click', _ => app.pragma = i)))
         app.onPragmaChange.add(pragma => {
             $('#menu > div > div').forEach((e, i) => {

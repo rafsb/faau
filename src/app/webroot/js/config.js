@@ -8,7 +8,6 @@
  *
  */
 window.VERBOSE            = true
-window.APP_DEFAULT_THEME  = "dark"
 
 /*
  * ENUMS
@@ -21,7 +20,7 @@ window.EPaths = Object.freeze({
 })
 
 window.EPragmas = Object.freeze({
-	HOME            : 0
+	WELCOME         : 0
     , AI            : 1
     , BIGDATA       : 2
     , GPT           : 3
@@ -39,11 +38,19 @@ window.EPragmas = Object.freeze({
  */
 bootloader.loadComponents.add(async _ => {
     /**
-     *
-     */
-    [ "home", "ai", "bigdata", "gpt", "consulting", "dev", "contact" ].forEach(addr => {
-    bootloader.dependencies.add(addr)
-        app.call(`pragmas/${addr}.htm`).then(res => {
+     * HOME
+    */
+   bootloader.dependencies.add('home')
+    app.load(`home.htm`)
+})
+
+bootloader.loadComponents.add(async _ => {
+    /**
+     * PRAGMAS
+    */
+    [ "welcome", "ai", "bigdata", "gpt", "consulting", "dev", "contact" ].forEach(addr => {
+        bootloader.dependencies.add(addr)
+        app.call(`pragmas/${app.is_mobile() ? 'm/' : ''}${addr}.htm`).then(res => {
             app.components[addr] = res.data.prepare()
             bootloader.ready(addr)
         })
@@ -53,36 +60,30 @@ bootloader.loadComponents.add(async _ => {
 /**
  * LET THERE BE MAGIC
  */
-app.initial_pragma = EPragmas.GPT
+app.initial_pragma = EPragmas.WELCOME
 
 const pragma_names = Object.keys(EPragmas).map(i => i.toLowerCase()) ;;
 app.onPragmaChange.add((pragma, args) => {
 
-    if(pragma == app.last_pragma) return
-
+    if(pragma === app.last_pragma) return
 
     $('.--big-picture').desappear(AL, true)
 
-    if(pragma != EPragmas.HOME) $('.--self').at().desappear()
-    else $('.--self').at().appear()
+    if(pragma != EPragmas.WELCOME) $('.--self').at()?.desappear()
+    else $('.--self').at()?.appear()
 
-    const
-    stage = $('main#stage')[0]
-    , dir = pragma > app.last_pragma
-    ;;
-    stage.stop().anime({
-        transform: `translateX(${dir ? "-4em" : "4em"})`
+    const stage = $('main#stage')[0] ;;
+    stage?.stop().anime({
+        transform: `translateY(2em)`
         , filter: 'opacity(0)'
-    }).then(stage => stage.css({
-        transform: `translateX(${dir ? "4em" : "-4em"})`
-    }, stage => {
+    }).then(stage => {
         const content = app.components[pragma_names[pragma]].morph() ;;
         stage.empty().app(content).anime({
-            transform: `translateX(0)`
+            transform: `translateY(0)`
             , filter: 'opacity(1)'
         })
         stage.evalute()
-    }))
+    })
 })
 
 /*
@@ -92,4 +93,20 @@ app.onPragmaChange.add((pragma, args) => {
  */
 blend(app.hints, {
     // some_id: "A simple tootlip used as example"
+})
+
+const swip = new swipe($('#app').at()) ;;
+swip.right(_ => {
+    if(app.current_pragma) app.pragma = app.current_pragma - 1
+    else app.pragma = Object.keys(EPragmas).length - 1
+})
+swip.left(_ => {
+    if(app.current_pragma == Object.keys(EPragmas).length - 1) app.pragma = 0
+    else app.pragma = app.current_pragma + 1
+})
+swip.fire()
+
+$('#app')[0].on('mousemove', e => {
+    maxis.x = e.clientX
+    maxis.y = e.clientY
 })

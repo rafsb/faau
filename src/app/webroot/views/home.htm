@@ -1,18 +1,16 @@
 <template>
+
     <!-- HOME -->
     <div class='-wrapper -no-scrolls' style="background-image: linear-gradient(to top right, {{background}}, {{foreground}});">
         <div class="--self">
             <img src="assets/img/face.png" class="-fixed -zero-bottom-right --animated" style="height:90vh;opacity:.08">
-            <img src="assets/img/face.png" class="-fixed -zero-bottom-right" style="height:90vh;opacity:.16">
+            <img src="assets/img/face.png" class="-fixed -zero-bottom-right" style="height:90vh;opacity:.08">
         </div>
         <header id='head' class="-row -left"></header>
-        <main id="stage" class="-row -left" style="top:16em;height:calc(100vh - 13em);"></main>
+        <main id="stage" class="-row -flex -roboto-thin" style="height:calc(100vh - 10em);"></main>
     </div>
-    <style>
-        .--animated {
 
-        }
-    </style>
+    <!-- SCRIPT -->
     <script>
         (async _ => {
             app.load('components/header.htm', null, $('header#head')[0])
@@ -20,7 +18,7 @@
             h = window.innerHeight
             , w = window.innerWidth
             , img2anim = $('.--animated')[0]
-            , mousemove = new Throttle(e => {
+        , mousemove = new throttle(e => {
                 let { clientX:x, clientY:y } = e ;;
                 x = (x / w - .5) * .08
                 y = (y / h - .5) * .08

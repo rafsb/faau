@@ -10,7 +10,8 @@
 window.VERBOSE           = true
 window.ANIMATION_LENGTH  = 400
 window.AL 				 = ANIMATION_LENGTH
-window.APP_DEFAULT_THEME = "dark"
+window.APP_DEFAULT_THEME = "light"
+window.APP_NEEDS_LOGIN   = false
 
 /*
  * ENUMS
@@ -26,17 +27,17 @@ window.ELocales = Object.freeze({
 
 const
 wsport = (location.port + "").slice(0, 2) + (location.port + "").slice(0, 2)
-, ws = new WebSocket('ws://' + location.hostname + ':' + wsport)
+, ws = new WebSocket('wss://' + location.hostname + ':' + wsport)
 , socket_callbacks = { }
-, sock_sender = async req => {
+, sock_sender = req => {
     if(ws.readyState === 1) ws.send(req)
-    else setTimeout(_ => sock_sender(req), 128)
+    else setTimeout(_ => sock_sender(req), AL/2)
 }
-, sock = (path, data) => {
+, sock = async (path, data) => {
     const
-    callback = typeof data == "function" ? data : ((data.callback ?  data.callback : data.cb) || null)
+    callback = typeof data == "function" ? data : (data?.callback ? data.callback : (data?.cb ? data.cb : null))
     , emitter = callback ? "fn" + callback.toString().hash() : null
-    , payload = blend(data?.data||{}, { ts: FDate.time(), path, emitter, device: app.device })
+    , payload = blend(data?.data||{}, { ts: fdate.time(), path, emitter, device: app.device, token: app.token })
     ;;
     if(callback) socket_callbacks[emitter] = callback
     let req ;;
@@ -44,6 +45,7 @@ wsport = (location.port + "").slice(0, 2) + (location.port + "").slice(0, 2)
     sock_sender(req)
 }
 ;;
+
 ws.onmessage = function(res) {
     try { res = JSON.parse(res.data) } catch(e) { console.warn(e); res = res.data }
     const data = typeof res == 'string' ? res : res.data ;;
@@ -59,10 +61,10 @@ blend(app, {
     , flags          : new Set()
     , locale         : app.storage("locale") || app.storage("locale", ELocales.BR)
     , theme          : app.storage("theme")  || app.storage("theme", APP_DEFAULT_THEME)
-    , device         : app.storage("device") || app.storage("device", app.nuid(32))
-    , access_token   : app.storage("uat")
+    , device         : app.storage("device") || app.storage("device", app.uuid())
+    , uat            : app.storage("uat")
     , initial_pragma : null
-    , onPragmaChange : new Pool()
+    , onPragmaChange : new pool()
     , contextEvents  : {}
 })
 
@@ -80,7 +82,7 @@ bootloader.dependencies = new Set([
  * after this execution queue and all bootloader`s
  * loaders are all done
  */
-bootloader.loadComponents.add(async _ => {
+;; (async function() {
 
     /*** SPLASH ***/
     {
@@ -100,23 +102,29 @@ bootloader.loadComponents.add(async _ => {
                     app.warning('Atualizando versão de sistema...')
                     app.clearStorage()
                     app.storage('version', app.v)
-                    app.storage('uat', app.access_token || "")
+                    app.storage('uat', app.uat || "")
                     app.storage('device', app.device)
                     setTimeout(_ => location.reload(), AL * 4)
 
                 } else {
 
-                    sock('auth/check', { data: { access_token: app.access_token }, callback: res =>{
-                        if(res.status) {
-                            bootloader.dependencies.add("theme")
-                            try {
-                                sock(`theme`, { data: { theme: app.theme }, cb: async res => blend(app.pallete, res) && app.load('views/home.htm') && bootloader.ready('theme') })
-                            } catch(e) {
-                                app.warning("Não foi possível carregar o tema escolhido, usaremos o padrão do sistema!")
-                                app.load('views/home.htm')
+                    function theme(callback) {
+                        bootloader.dependencies.add("theme")
+                        sock(`theme`, {
+                            data: { theme: app.theme || APP_DEFAULT_THEME }
+                            , cb: async res => {
+                                blend(app.pallete, res)
+                                callback && callback.apply()
+                                bootloader.ready('theme')
                             }
-                        } else app.exec('login')
+                        })
+                    }
+
+                    if(APP_NEEDS_LOGIN) sock('users/check', { data: { uat: app.uat }, callback: res =>{
+                        if(res.status) theme(_ => bootloader.loadComponents.fire())
+                        else app.exec('login')
                     } })
+                    else theme(_ => bootloader.loadComponents.fire())
 
                     bootloader.ready("v")
 
@@ -140,10 +148,10 @@ bootloader.loadComponents.add(async _ => {
 
     setTimeout(_ => bootloader.ready("ready"), AL)
 
-})
+})()
 
 /*
- * This Pool will fire after all loaders are true
+ * This pool will fire after all loaders are true
  */
 bootloader.onFinishLoading.add(function() {
 
@@ -151,6 +159,8 @@ bootloader.onFinishLoading.add(function() {
      * commonly used helpers, uncommnt to fire
     */
     app.pragma = app.initial_pragma
+
+    sock('stats/device/'+app.device)
 
 
 })
@@ -169,4 +179,4 @@ app.hints = {
  * comment to normal initialization without
  * possible system dependencies
  */
-initpool.add(_ => bootloader.loadComponents.fire())
+// initpool.add(_ => bootloader.loadComponents.fire())

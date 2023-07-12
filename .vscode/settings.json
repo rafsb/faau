@@ -1,0 +1,8 @@
+{
+    "appService.zipIgnorePattern": [
+        "node_modules{,/**}",
+        ".vscode{,/**}"
+    ],
+    "appService.defaultWebAppToDeploy": "/subscriptions/5464ea67-7982-4596-a1ae-d522bd7f769d/resourceGroups/faau/providers/Microsoft.Web/sites/faau-portal",
+    "appService.deploySubpath": "."
+}

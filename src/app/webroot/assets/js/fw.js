@@ -58,8 +58,9 @@ DEBUG = false
 , ITALIC = (t,c,s) => TAG("i",c,s,t)
 , ROW = (c, s, e) => { const x = DIV("-row " + (c || ''), s); if (e) { typeof e == "string" ? x.html(e) : x.app(e); } return x }
 , WSPAN = (t,c,s,n="span") => TAG(n,c,blend({ paddingLeft:"1em" }, s||{}),t)
-, blend = function (e = {}) {
-    for (let i = 1; i <= arguments.length - 1; i++) for (let j in arguments[i]) e[j] = arguments[i][j];
+, blend = function (e) {
+    if(!e) e = {}
+    for (let i = 1; i <= arguments.length - 1; i++) if(arguments[i]) for (let j in arguments[i]) e[j] = arguments[i][j];
     return e
 }
 , EEvents = Object.freeze({
@@ -102,7 +103,7 @@ blend(NodeList.prototype, {
         return [].slice.call(this);
     }
     , each: function (f) {
-        return this.array().each(f)
+        return this.array().forEach(f)
     }
     , extract: function (f) {
         return this.array().extract(f)
@@ -114,20 +115,20 @@ blend(HTMLCollection.prototype, {
         return [].slice.call(this);
     }
     , each: function (f) {
-        return this.array().each(f)
+        return this.array().forEach(f)
     }
     , extract: function (f) {
         return this.array().extract(f)
     }
     , evalute: function () {
-        this.array().each(el => el.evalute())
+        this.array().forEach(el => el.evalute())
     }
 })
 
 blend(HTMLFormElement.prototype, {
     json: function () {
         let tmp = {} ;;
-        this.get("input, textarea, select, .-value, .--field").each(o => {
+        this.get("input, textarea, select, .-value, .--field").forEach(o => {
             if (!o.has("-skip") && (o.name || o.dataset.name)) {
                 let
                 name = o.name || o.dataset.name
@@ -156,7 +157,7 @@ blend(Element.prototype, {
             el.style.transition = "all " + len.toFixed(2) + "s " + trans;
             el.style.transitionDelay = (delay ? delay / 1000 : 0).toFixed(2) + "s";
             for (let i in obj) el.style[i] = obj[i];
-            setTimeout(function (e) { return ok(e) }, len * 1000 + delay, el)
+            setTimeout(function (e) { return ok(e) }, len * 1000 + delay + 1, el)
         })
     }
     , mime: function () {
@@ -207,7 +208,7 @@ blend(Element.prototype, {
         let el = this;
         if (Array.isArray(obj) || HTMLCollection.prototype.isPrototypeOf(obj) || NodeList.prototype.isPrototypeOf(obj)) {
             Array.from(obj).forEach(o => el._put_where_(o, w));
-        } else if (obj) el.insertAdjacentElement(w, obj);
+        } else if (obj) el.insertAdjacentElement(w, obj.cloneNode(true));
         return this
     }
     , aft: function (obj = null) { return this._put_where_(obj, "afterend") }
@@ -232,19 +233,16 @@ blend(Element.prototype, {
         return this
     }
     , index: function () {
-        return [].slice.call(this.parent().children).indexOf(this)
+        return [].slice.call(this.parent().children).indexOf(this) - 1;
     }
     , evalute: function () {
         if (this.tagName == 'SCRIPT') {
-            // console.log(this.textContent)
-            eval(this.textContent);
+            const s = document.createElement('script') ;;
+            s.type='text/javascript'
+            s.innerHTML = this.innerHTML
+            document.getElementsByTagName('head')[0].appendChild(s)
             this.remove()
-        } else {
-            fw.get("script", this).each(x => {
-                eval(x.textContent);
-                x.remove()
-            })
-        }
+        } else this.$("script").forEach(x => x.evalute())
         return this
     }
     , on: function (action, fn, passive = { passive: true }) {
@@ -273,12 +271,10 @@ blend(Element.prototype, {
         me = this
         , parent = this.parent(parent_pace)
         ;;
-        return (
-            me.offsetTop > parent.scrollTop + parent.offsetHeight || me.offsetTop + me.offsetHeight < parent.scrollTop
-        ) ? false : {
+        return (me.offsetTop >= parent.scrollTop && me.offsetTop < parent.scrollTop + parent.offsetHeight) ? {
             offset: me.offsetTop - parent.scrollTop,
             where: (me.offsetTop - parent.scrollTop) / parent.clientHeight
-        }
+        } : false
     }
     , scrolls: function(el,fn=null) {
         if (!el) return -1;
@@ -357,7 +353,7 @@ blend(Element.prototype, {
         return this
     }
     , desappear: function (len = ANIMATION_LENGTH, remove = false, fn = null) {
-        return this.stop().anime({ opacity: 0, top:'1em' }, len).then(x => { if (remove) x.remove(); else x.css({ display: "none", top:0 }); if (fn) fn(remove ? null : this); });
+        return this.stop().anime({ opacity: 0 }, len).then(x => { if (remove) x.remove(); else x.css({ display: "none" }); if (fn) fn(remove ? null : this); });
     }
     , remove: function () { if (this && this.parentElement) this.parentElement.removeChild(this) }
 });
@@ -410,9 +406,8 @@ blend(String.prototype, {
     }
     , desnerdify: function () {
         let
-        n = Number(this.replace(/[^0-9\.]/g, '').replace(',', '.'))
-        , s = this.replace(/[^a-zA-Z]/g, '')
-        ;;
+            n = Number(this.replace(/[^0-9\.]/g, '').replace(',', '.'))
+            , s = this.replace(/[^a-zA-Z]/g, '');
         switch (s) {
             case "tri": n *= 1000000000000; break;
             case "bi": n *= 1000000000; break;
@@ -440,13 +435,13 @@ blend(String.prototype, {
     }
     , prepare: function (obj = null) {
         let str = this.trim() ;;
-        obj = blend(app.pallete, obj)
-        Object.keys(obj).each(x => {
-            let rgx = new RegExp("(\{\{" + x + "\}\})", "gi") ;;
-            str = str.replace(rgx, (obj[x]||""));
+        obj = blend({}, app.pallete, obj)
+        const founds = str.match(/{{([^{}]+)}}/gi)?.map(i => i.replace(/{|}/g, '')) || [] ;;
+        founds.forEach(x => {
+            let rgx = new RegExp("{{" + x.trim() + "}}", "gi") ;;
+            str = str.replace(rgx, (obj[x]||obj[x.toLowerCase()]||obj[x.toUpperCase()]||""))
         })
-        // if(str.match(/-inverted/gm)) str = str.replace(/-inverted/gui, fw.pallete.type == 'dark' ? '-inverted' : '-lightinverted')
-        return str
+        return str.replace(/[ ]+/g, ' ')
     }
 });
 
@@ -457,7 +452,7 @@ blend(Array.prototype, {
     , extract: function (fn = null) {
         if (!fn || !this.length) return this;
         let narr = [];
-        this.each((o, i) => {
+        this.forEach((o, i) => {
             let x = fn(o, i);
             if (x != null && x != undefined) narr.push(x)
         })
@@ -627,7 +622,7 @@ blend(Array.prototype, {
                 if (y == null || y == undefined) nulls.push(x);
                 else return [x, y];
             })
-        nulls.each((x, n) => narr.push([n, narr.calc(INTERPOLATE, n)]));
+        nulls.forEach((x, n) => narr.push([n, narr.calc(INTERPOLATE, n)]));
         narr.sort(function (a, b) { return a[0] - b[0] })
         return narr;
     }
@@ -655,58 +650,58 @@ blend(Array.prototype, {
         return arr;
     }
     , anime: function (obj, len = ANIMATION_LENGTH, delay = 0, trans = null) {
-        this.each(x => x.anime(obj, len, delay, trans));
+        this.forEach(x => x.anime(obj, len, delay, trans));
         return this
     }
     , stop: function () {
-        this.each(x => x.stop())
+        this.forEach(x => x.stop())
         return this
     }
     , raise: function () {
-        this.each(x => x.raise());
+        this.forEach(x => x.raise());
         return this
     }
     , css: function (obj, fn = null) {
-        this.each(x => x.css(obj, fn));
+        this.forEach(x => x.css(obj, fn));
         return this
     }
     , data: function (obj, fn = null) {
-        this.each(x => x.data(obj, fn));
+        this.forEach(x => x.data(obj, fn));
         return this
     }
     , attr: function (obj, fn = null) {
-        this.each(x => x.attr(obj, fn));
+        this.forEach(x => x.attr(obj, fn));
         return this
     }
     , text: function (txt, fn = null) {
-        this.each(x => x.text(txt, fn));
+        this.forEach(x => x.text(txt, fn));
         return this
     }
     , addClass: function (cl = null) {
-        if (cl) this.each(x => x.addClass(cl));
+        if (cl) this.forEach(x => x.addClass(cl));
         return this
     }
     , remClass: function (cl = null) {
-        if (cl) this.each(x => x.remClass(cl));
+        if (cl) this.forEach(x => x.remClass(cl));
         return this
     }
     , removeClass: function (cl = null) {
         return this.remClass(cl)
     }
     , toggleClass: function(cl=null) {
-        if(cl) this.each(x => x.toggleClass(cl));
+        if(cl) this.forEach(x => x.toggleClass(cl));
         return this
     }
     , remove: function () {
-        this.each(x => x.remove());
+        this.forEach(x => x.remove());
         return this
     }
     , on: function (act = null, fn = null) {
-        if (act && fn) this.each(x => x.on(act, fn));
+        if (act && fn) this.forEach(x => x.on(act, fn));
         return this
     }
     , empty: function () {
-        this.each(x => x.empty())
+        this.forEach(x => x.empty())
         return this
     }
     , clear: function () {
@@ -715,32 +710,30 @@ blend(Array.prototype, {
         })
     }
     , evalute: function () {
-        this.each(el => el.evalute())
+        this.forEach(el => el.evalute())
     }
     , html: function (v) {
-        this.each(el => el.html(v));
+        this.forEach(el => el.html(v));
         return this
     }
     , show: function (display = 'inline-block') {
         return this.map(x => x.style.display = display || 'inline-block')
     }
     , appear: function (len = ANIMATION_LENGTH) {
-        return this.each(x => x.css({ display: 'block', top:'1em' }, x => x.anime({ opacity: 1, top:0 }, len, 1)))
+        return this.forEach(x => x.css({ display: 'block' }, x => x.anime({ opacity: 1 }, len, 1)))
     }
     , hide: function () {
         return this.map(x => x.style.display = 'none')
     }
     , desappear: function (len = ANIMATION_LENGTH, remove = false, fn = null) {
-        return this.each(x => x.desappear(len, remove, fn))
+        return this.forEach(x => x.desappear(len, remove, fn))
     }
     , val: function(v=null){
-        if(v) this.each(x => { if(x.tagName.toLowerCase()=="input") x.value = v })
+        if(v) this.forEach(x => { if(x.tagName.toLowerCase()=="input") x.value = v })
         return this
     }
     , app: function (el = null) {
-        if (el) {
-            this.each(x => x.app(el.mime()))
-        }
+        if (el) this.forEach(x => x.app(el))
         return this
     }
 });
@@ -762,21 +755,21 @@ Object.defineProperty(Object.prototype, "spy", {
 // | (__| | (_| \__ \__ \  __/\__ \
 //  \___|_|\__,_|___/___/\___||___/
 
-class FDate extends Date {
+class fdate extends Date {
 
     plus(n) {
         let
         date = new Date(this.valueOf());
         date.setDate(date.getDate() + n);
-        return new FDate(date)
+        return new fdate(date)
     }
 
     export(format = TS_MASK){
         let
-        d = this || FDate.now()
+        d = this || fdate.now()
         , arr = format.split("")
         ;;
-        arr.each(n => {
+        arr.forEach(n => {
             switch(n){
                 case "Y": format = format.replace(n, d.getFullYear());                             break;
                 case "y": format = format.replace(n, ((d.getYear()-100)   + "").fill("0", 2, -1)); break;
@@ -803,13 +796,13 @@ class FDate extends Date {
     }
 
     isValid(date){
-        if(date) return (new FDate(date)).isValid();
+        if(date) return (new fdate(date)).isValid();
         else if(this.getTime()) return this
         return null
     }
 
     now(){
-        return new FDate()
+        return new fdate()
     }
 
     time(){
@@ -826,64 +819,54 @@ class FDate extends Date {
         var dat ;;
 
         if(!isNaN(datestr)) {
-            dat = new FDate();
+            if((datestr+'').length == 10) datestr = parseInt(datestr + '000');
+            dat = new fdate();
             dat.setTime(datestr);
-        }
-        if(dat&&dat.getTime()) return dat
+        } //else dat = new fdate(datestr);
+
+        if(dat&&dat.getTime()) return dat;
+        datestr = (datestr).toLowerCase();
 
         let
         datefound = null
-        , hourfound = null
-        , fmatch
+        , i = 0
+        , fmatch = datestr.replace(/[.,-/]/gi, ' ').replace(/\s+/gi, ' ').match(/[a-z]{3}[\s-/][0-9]{2}[\s-/][0-9]{4}/gi)
         ;;
 
-        fmatch = datestr.match(/\b\d{2,4}([\-\/ ])\d{2}\1\d{2,4}(T|\b)/)
-        if(fmatch?.length) {
-            const tmp = fmatch[0].replace("T", "") ;;
-            if(tmp.match(/^\d{2}([\-\/ ])\d{2}([\-\/ ])\d{2,4}$/)) datefound = tmp
-                .split(/[\-\/ ]/)
-                .reverse()
-                .map((x, i) => !i && x.length==2 ? `20${x}` : x)
-                .map(x => x*1 > (new Date).getFullYear() ? (x*1 - 100)+'' : x)
-                .join('-')
-            ; else datefound = tmp
+        if(fmatch?.length){
+            datestr = fmatch[0].split(/[\s-/]/gi);
+            datestr = datestr[1] + '-' + datestr[0] + '-' + datestr[2]
         }
-
-        fmatch = datestr.match(/(T|\b)\d{1,2}:\d{2}/)
-        if(fmatch?.length) hourfound = fmatch[0].replace("T", "")+":00.000Z"
-
-        return datefound + (hourfound ? `T${hourfound}` : '')
-
-
-        dat = new FDate(datestr)
-        if(dat&&dat.getTime()) return dat
 
         MONTHS.map((m, i) => datestr = datestr.replace(m, (((i++%12)+1)+"").fill("0", 2, -1)));
         datestr = datestr.replace(/[^a-z0-9:]|(rd|th|nd|de)/gi, ' ').replace(/\s+/gi, ' ').trim();
 
-        const dt = datestr.match(/\d{2,4}([.\-/ ])\d{2}\1\d{2,4}\b/);
-        if(dt&&dt.length) {
-            datefound = dt[0].replace(/\s+/gi, '-')
-            let dat ;;
-            dat = datefound.match(/\d{2}\-\d{2}\-\d{4}/gi) // xx/xx/xxxx
-            if(dat&&dat.length) datefound = dat[0].split('-').reverse().join('-')
-            dat = datefound.match(/\d{2}\-\d{2}\-\d{2}\b/gi) // xx/xx/xx
-            if(dat&&dat.length) datefound = dat[0].split('-').reverse().map((x, i) => i ? x : `20${x}`).join('-')
+        [
+            /[0-9]{2}.{1,5}[0-9]{2}.{1,5}[0-9]{4}/gi
+            , /[0-9]{4}.{1,5}[0-9]{2}.{1,5}[0-9]{2}/gi
+        ].forEach(rx => {
+            if(datefound) return;
+            const dt = datestr.match(rx);
+            if(dt&&dt.length) datefound = dt[0].replace(/\s+/gi, '-')
+        })
 
+        if(datefound) {
+            const dat = datefound.match(/[0-9]{2}\-[0-9]{2}\-[0-9]{4}/gi);
+            if(dat&&dat.length) datefound = datefound.split('-').reverse().join('-')
             datefound = datefound.slice(0, 10)
         }
 
-        datefound = datefound ? new FDate(datefound+"T03:00:00.000Z") : false;
+        datefound = datefound ? new fdate(datefound+"T03:00:00.000Z") : false;
 
-        return datefound //&& datefound.as('Y')*1 > 1000 ? datefound : false
+        return datefound && datefound.as('Y')*1 > 1000 ? datefound : false
     }
 
     static now(){
-        return new FDate()
+        return new fdate()
     }
 
     static plus(n=1){
-        return FDate.now().plus(n)
+        return fdate.now().plus(n)
     }
 
     static time(){
@@ -891,35 +874,35 @@ class FDate extends Date {
     }
 
     static at(n){
-        return FDate.now().plus(n)
+        return fdate.now().plus(n)
     }
 
     static as(format=TS_MASK){
-        return FDate.now().export(format)
+        return fdate.now().export(format)
     }
 
     static format(format){
-        return FDate.now().export(format)
+        return fdate.now().export(format)
     }
 
     static cast(date){
-        return new FDate(date || new Date)
+        return new fdate(date || new Date)
     }
 
     static yday(){
-        return parseInt(FDate.plus(-1).getTime()/1000)*1000
+        return parseInt(fdate.plus(-1).getTime()/1000)*1000
     }
 
     static tday(){
-        return parseInt(FDate.time()/1000)*1000
+        return parseInt(fdate.time()/1000)*1000
     }
 }
 
-class Pool {
+class pool {
     add(x = null) {
         if (x) {
-            const Pool = this ;;
-            if (Array.isArray(x)) x.forEach(y => Pool.add(y))
+            const pool = this ;;
+            if (Array.isArray(x)) x.forEach(y => pool.add(y))
             if (typeof x === 'function') this.execution.push(x)
             else this.conf(x)
         }
@@ -932,21 +915,23 @@ class Pool {
     conf(o = null) {
         if(o) {
             if (typeof o == 'object') blend(this.setup, o)
-            else this.setup.args.push(o)
+            else this.setup[fw.nuid(8)] = o
         }
         return this
     }
 
     fire(x = null) {
-        if (x && typeof x == "function") {
+        if (typeof x == "function") {
             this.add(x);
             x = null
         }
         const
         pool = this
         , initlen = pool.execution.length
-        , fn = i => i < initlen && Promise.resolve(pool.execution[i](x, i, pool.setup)).then(_ => fn(++i))
-
+        , fn = i => {
+            if(i < initlen) Promise.resolve(pool.execution[i](x, i, pool.setup)).then(_ => fn(++i))
+        }
+        ;;
         return fn(0)
     }
     stop() {
@@ -961,13 +946,13 @@ class Pool {
     }
     constructor(x) {
         this.execution = [];
-        this.setup = { args: [] };
+        this.setup = {};
         this.add(x)
     }
-};
+}
 
-class Swipe {
-    constructor(el,len=40) {
+class swipe {
+    constructor(el,len=10) {
         this.len = len;
         this.x = null;
         this.y = null;
@@ -979,17 +964,13 @@ class Swipe {
         }.bind(this));
     }
 
-    static cast(e, l) {
-        return new Swipe(e, l)
-    }
+    left(fn) { this.__LEFT__ = new throttle(fn,this.len); return this }
 
-    left(fn) { this.__LEFT__ = new Throttle(fn,this.len); return this }
+    right(fn) { this.__RIGHT__ = new throttle(fn,this.len); return this }
 
-    right(fn) { this.__RIGHT__ = new Throttle(fn,this.len); return this }
+    up(fn) { this.__UP__ = new throttle(fn,this.len); return this }
 
-    up(fn) { this.__UP__ = new Throttle(fn,this.len); return this }
-
-    down(fn) { this.__DOWN__ = new Throttle(fn,this.len); return this }
+    down(fn) { this.__DOWN__ = new throttle(fn,this.len); return this }
 
     move(v) {
         if(!this.x || !this.y) return;
@@ -1001,18 +982,18 @@ class Swipe {
         this.xdir = diff(this.x,X);
         this.ydir = diff(this.y,Y);
 
-        if(Math.abs(this.xdir)>Math.abs(this.ydir)) { // Most significant.
-            if(this.__LEFT__&&this.xdir>0) this.__LEFT__.fire();
+        if(Math.abs(this.xdir) > Math.abs(this.ydir)) { // Most significant.
+            if(this.__LEFT__ && this.xdir > 0) this.__LEFT__.fire();
             else if(this.__RIGHT__) this.__RIGHT__.fire();
         }else{
-            if(this.__UP__&&this.ydir>0) this.__UP__.fire();
+            if(this.__UP__ && this.ydir > 0) this.__UP__.fire();
             else if(this.__DOWN__) this.__DOWN__.fire()
         }
         this.x = this.y = null
     }
 
-    fire() { this.e&&this.e.on('touchmove', function(v) { this.move(v) }.bind(this)) }
-};
+    fire() { this.e && this.e.on('touchmove', function(v) { this.move(v) }.bind(this)) }
+}
 
 /*
  * @class
@@ -1022,13 +1003,13 @@ class Swipe {
  * times decreasing performance affecting user's experience
  *
  */
-class Throttle {
+class throttle {
     /*
      * @constructor
      *
      * f = javascript function to be applied
      * t = time betwin executions of 'f' (250ms is the default)
-     * ex.: new __self.Throttle(minha_funcao,400);
+     * ex.: new __self.throttle(minha_funcao,400);
      *
      */
     constructor(f, t = ANIMATION_LENGTH/2) {
@@ -1041,7 +1022,7 @@ class Throttle {
      * assign values to inner class attributes
      * f = javascript function to be applied
      * t = time betwin executions of 'f' (250ms is the default)
-     * ex.: (new __self.Throttle).assign(minha_funcao) // assuming default delay time
+     * ex.: (new __self.throttle).assign(minha_funcao) // assuming default delay time
      *
      */
     assign(f, t) {
@@ -1054,7 +1035,7 @@ class Throttle {
      * @member function
      *
      * execute given function assigned on constructor or assign() mmber function
-     * ex.: (new __self.Throttle).apply()
+     * ex.: (new __self.throttle).apply()
      * obs.: the fire() member function will only execute the inner function if the
      * given ammount of time is passed, otherway if won't do anything
      *
@@ -1068,22 +1049,22 @@ class Throttle {
             this.timer = now;
         }
     }
-};
+}
 
-class Loader {
+class loader {
 
     loadLength() {
-        return Object.values(this.Loaders).filter(i => i).length / Object.keys(this.Loaders).length
+        return Object.values(this.loaders).filter(i => i).length / Object.keys(this.loaders).length
     }
 
     check(scr) {
-        return scr ? this.Loaders[scr] : this.alreadyLoaded
+        return scr ? this.loaders[scr] : this.alreadyLoaded
     }
 
     ready(scr) {
         const tmp = this ;;
-        this.dependencies.forEach(x => tmp.Loaders[x] = tmp.Loaders[x]*1 ? 1 : 0)
-        if (scr!=null&&scr!=undefined) this.Loaders[scr] = 1;
+        this.dependencies.forEach(x => tmp.loaders[x] = tmp.loaders[x]*1 ? 1 : 0)
+        if (scr!=null&&scr!=undefined) this.loaders[scr] = 1;
 
         let perc = this.loadLength();
 
@@ -1102,16 +1083,16 @@ class Loader {
 
     constructor(dependencies) {
         this.alreadyLoaded = false;
-        this.loadComponents = new Pool();
-        this.onReadyStateChange = new Pool();
-        this.onFinishLoading = new Pool();
+        this.loadComponents = new pool();
+        this.onReadyStateChange = new pool();
+        this.onFinishLoading = new pool();
         this.dependencies = new Set(dependencies || ["pass"]);
-        this.Loaders = {};
+        this.loaders = {};
     }
 
-};
+}
 
-class CallResponse {
+class call_response {
     constructor(url = location.href, args = {}, method = "POST", header = {}, data = null) {
         this.url = url;
         this.args = args;
@@ -1120,19 +1101,19 @@ class CallResponse {
         this.data = data;
         this.status = this.data ? true : false;
     }
-};
+}
 
-class FObject extends Object {
+class fobject extends Object {
 
     static cast(o){
-        return new FObject(o)
+        return new fobject(o)
     }
 
     isNull(){
         return Object.values(this).length && true
     }
     static isNull(o){
-        return FObject.cast(o).isNull()
+        return fobject.cast(o).isNull()
     }
 
     map(fn){
@@ -1141,7 +1122,7 @@ class FObject extends Object {
         return res
     }
     static map(o, fn){
-        return FObject.cast(o).map(fn)
+        return fobject.cast(o).map(fn)
     }
 
     json(){
@@ -1160,7 +1141,7 @@ class FObject extends Object {
         return this.isNull() ? null : {...this}
     }
     static spread(o){
-        return FObject.cast(o).spread()
+        return fobject.cast(o).spread()
     }
 
     constructor(o){
@@ -1264,7 +1245,7 @@ class fw {
         return this.client_ip_
     }
 
-    static initialize() { initPool.fire() }
+    static initialize() { initpool.fire() }
 
     static async call(url, args = null, method = null, head = null) {
         try {
@@ -1280,11 +1261,11 @@ class fw {
             req = await fetch(url, args ? {
                 method
                 , headers : new Headers(head)
-                , body    : FObject.json(blend(args || {}, { _ts: FDate.time() }))
+                , body    : fobject.json(blend(args || {}, { _ts: fdate.time() }))
             } : { method, headers: new Headers(head) })
             , res = await req.text()
             ;;
-            return new CallResponse(url, args, method, req, res);
+            return new call_response(url, args, method, req, res);
     } catch(e) {
             console.log({ err: e, url, args, head })
         }
@@ -1299,18 +1280,28 @@ class fw {
             if (!r.status) return fw.error("error loading " + url);
             r = r.data.prepare(blend({ UID: fw.nuid() }, fw.pallete, bind)).morph()
             if (!target) target = $('#app')[0];
-            r instanceof HTMLCollection ? r.array().each(e => { target.app(e); e.evalute() }) : target.app(r) && r.evalute();
+            const head = $('head')[0] ;;
+            Array.from(r).forEach(e => {
+                if(e.tagName == "SCRIPT" || e.tagName == "STYLE") {
+                    head.app(e)
+                    if(e.tagName == "SCRIPT") eval(e.innerHTML)
+                } else target.app(e)
+            })
             return r
         })
     }
 
     static async exec(url, args = null, prepare = null) {
-        if(!fw.execs) fw.execs = {}
-        else if(fw.execs[url]) return eval(fw.execs[url].prepare(prepare))(fw, args)
-        const res = await this.call(`js/${url.indexOf('.js')+1 ? url : url+'.js'}`) ;;
-        if(!res.status) return this.error("error loading " + url)
-        fw.execs[url] = res.data
-        return eval(fw.execs[url].prepare(prepare))(fw, args)
+        const s = document.createElement('script') ;;
+        s.type = 'text/javascript'
+        s.src = url.indexOf(".js")+1 ? url : url + '.js'
+        document.getElementsByTagName('head')[0].appendChild(s)
+        // if(!fw.execs) fw.execs = {}
+        // else if(fw.execs[url]) return eval(fw.execs[url].prepare(prepare))(fw, args)
+        // const res = await this.call(`js/${url.indexOf('.js')+1 ? url : url+'.js'}`) ;;
+        // if(!res.status) return this.error("error loading " + url)
+        // fw.execs[url] = res.data
+        // return eval(fw.execs[url].prepare(prepare))(fw, args)
     }
 
     static uuid() {
@@ -1415,7 +1406,7 @@ class fw {
             x.anime({ transform: "translateY(" + ht + "px)", opacity: 1 }, ANIMATION_LENGTH / 4)
             ht += x.getBoundingClientRect().height + 8;
         });
-        toast.dataset.delay = setTimeout(function () { toast.desappear(ANIMATION_LENGTH / 2, true); }, ANIMATION_LENGTH * 5);
+        toast.dataset.delay = setTimeout(function () { toast.desappear(ANIMATION_LENGTH, true); }, ANIMATION_LENGTH * 5);
         return toast
     }
 
@@ -1432,14 +1423,31 @@ class fw {
         return fw.notify(message || "Hooray! Success!", [fw.color().PETER_RIVER, fw.color().WHITE])
     }
 
+    static confirm(args={}) {
+        // html = null, title = null, css = {})
+        const w = fw.dialog(DIV('-wrapper').app(
+            TAG('p', '-row -content-left', null, args.message || "???")
+        ).app(
+            DIV('-row -flex').app(
+                DIV('-col-6', { padding:'1em .5m 1em 1em' }).app(
+                    DIV('-pointer -wrapper', { background: fw.pallete.ALIZARIN, color:'white' }).text('NÃO').on('click', args.no ? args.no : _=>_)
+                )
+            ).app(
+                DIV('-col-6', { padding:'1em 1em 1em .5em' }).app(
+                    DIV('-pointer -wrapper', { background: fw.pallete.GREEN_SEA, color:'white' }).text('SIM').on('click', args.ok ? args.ok : _=>_)
+                )
+            )
+        ),args.title || "?")
+    }
+
     //static hintify(n = null, o = {}, delall = true, keep = false, special = false, evenSpecial = false) {
     static hintify(opts={}) {
 
         if (opts.delall) $(".--hintifyied" + (opts.special ? ", .--hintifyied-sp" : "")).forEach(x => x.desappear(ANIMATION_LENGTH, true));
 
         opts.css = blend({
-            top: Math.min(window.innerHeight * .95, maxis.clientY) + "px"
-            , left: Math.min(window.innerWidth * .8, maxis.clientX) + "px"
+            top: Math.min(window.innerHeight * .95, maxis.y) + "px"
+            , left: Math.min(window.innerWidth * .8, maxis.x) + "px"
             , boxShadow: "0 0 2em " + fw.color("DARK4")
             , padding:".5em"
             , borderRadius: ".25em"
@@ -1469,8 +1477,7 @@ class fw {
 
     static window(html = null, title = null, css = {}) {
         const
-        mob = fw.is_mobile()
-        , head = TAG("header", "-relative -row -zero --window-header -no-scrolls").app(
+        head = TAG("header", "-relative -row -zero --window-header -no-scrolls").app(
             DIV("-left -content-left -ellipsis --drag-trigger", { cursor: 'all-scroll', minHeight: "3em", lineHeight: 3, width: "calc(100% - 9em)", fontWeight: 500 }).app(
                 typeof title == "string" ? ("<span class='-row -no-scrolls' style='height:3em;padding:0 1em;opacity:.75'>" + title + "</span>").morph()[0] : title
             ).on("click", function () { this.upFind("--window").raise() })
@@ -1480,11 +1487,11 @@ class fw {
                 IMG("assets/img/icons/cross.svg", fw.pallete.type == "dark" ? "-inverted" : null, { height: "2.75em", width: "2.75em", padding: ".75em" })
             ).on("click", function () {
                 this.upFind("--window").desappear(AL, true)
-                setTimeout(_null => $(".--minimized").each((el, i) => { el.anime({ left: (10 + (i * 13.3)) + 'vw' }) }), AL)
+                setTimeout(_null => $(".--minimized").forEach((el, i) => { el.anime({ left: (10 + (i * 13.3)) + 'vw' }) }), AL)
             })
         ).app(
             // MINIMIZE
-            mob ? DIV() : DIV("-right -pointer --minimize -tile").app(
+            DIV("-right -pointer --minimize -tile").app(
                 IMG("assets/img/icons/minimize.svg", fw.pallete.type == "dark" ? "-inverted" : null, { height: "2.75em", width: "2.75em", padding: ".75em" })
             ).on("click", function () {
                 const
@@ -1497,7 +1504,7 @@ class fw {
                     win.anime({ height: pos.h + "px", width: pos.w + "px", top: pos.y + "px", left: pos.x + "px", transform: "translate(-50%, -50%)" });
                     win.remClass("--minimized");
                 } else {
-                    win.dataset.position = FObject.json({
+                    win.dataset.position = fobject.json({
                         w: win.offsetWidth
                         , h: win.offsetHeight
                         , x: win.offsetLeft
@@ -1508,33 +1515,33 @@ class fw {
                     win.anime({ height: "3em", width: "13.3vw", top: "calc(100vh - 1.5em)", left: "6.75vw" });
                     win.addClass("--minimized");
                 }
-                $(".--minimized").each((el, i) => { el.anime({ left: (6.75 + (i * 13.3)) + 'vw' }) })
+                $(".--minimized").forEach((el, i) => { el.anime({ left: (6.75 + (i * 13.3)) + 'vw' }) })
 
             })
         )
         , wrapper = DIV("-zero -wrapper", { height: "calc(100% - 3em)" })
-        , _W = DIV("--window -fixed -no-scrolls --drag-target -centered -blur", blend({
-            height: mob ? "100vh" : "70vh"
-            , width: mob ? "100vw" : "70vw"
+        , _W = DIV("--window -fixed -no-scrolls --drag-target -centered", blend({
+            height: "70vh"
+            , width: "70vw"
             , background: fw.color("BACKGROUND")
             , border: "none"
             , borderRadius: ".5em"
-            , boxShadow: "0 0 1em black"
+            , boxShadow: "0 0 12em black"
             , color: fw.color("FONT")
             , zIndex: 8000
-            , resize: mob ? "none" : "both"
+            , resize: "both"
             , padding: "0"
         }, css)).data({ state: "default" })
         ;;
 
-        if (html) wrapper.app(typeof html == "string" ? html.prepare(translate()).morph() : html);
+        if (html) wrapper.app(typeof html == "string" ? html.prepare(app.pallete).morph() : html);
 
         $("#app")[0].app(_W.app(head).app(wrapper));
 
         this.tileClickEffectSelector(".-tile");
 
         wrapper.evalute();
-        fw.sleep(ANIMATION_LENGTH).then(_ => _W.raise());
+        fw.sleep(ANIMATION_LENGTH).then(NULL => _W.raise());
 
         fw.enableDragging();
 
@@ -1543,17 +1550,15 @@ class fw {
     }
 
     static dialog(html = null, title = null, css = {}) {
-        const mob = fw.is_mobile() ;;
         return fw.window(html, title, blend({
-            height: mob ? "90vh" : "40vh"
-            , width: mob ? "90vw" : "24vw"
-            , top: mob ? "5vh" : "50%"
-            , left: mob ? "5vw" : "50%"
+            height: "40vh"
+            , width: "24vw"
+            , top: "50%"
+            , left: "50%"
             , background: fw.pallete.BACKGROUND
-            , borderRadius: ".5em"
+            , borderRadius: ".25em"
             , boxShadow: "0 0 2em " + fw.pallete.DARK4
             , color: fw.pallete.FONT
-            , transform: mob ? 'translate(0, 0)' : 'translate(-50%, -50%)'
         }, css))
         ;;
     }
@@ -1597,7 +1602,7 @@ class fw {
                 document.cookie = field+"="+value+"; expires="+date.toGMTString()+"; path=/";
             }else{
                 field += "=";
-                document.cookie.split(';').each(c => {
+                document.cookie.split(';').forEach(c => {
                     while (c.charAt(0)==' ') c = c.substring(1,c.length);
                     if(c.indexOf(field)==0) value = c.substring(field.length,c.length);
                 });
@@ -1667,7 +1672,7 @@ class fw {
         let
         hex = "#";
         if(!Array.isArray(color)) color = color.split(/[\s+,.-]/g);
-        color.slice(0,3).each(clr => {
+        color.slice(0,3).forEach(clr => {
             let
             tmp = (clr*1).toString(16);
             hex += tmp.length == 1 ? "0" + tmp : tmp
@@ -1713,7 +1718,7 @@ class fw {
 
     static enableDragging() {
 
-        $(".--drag-trigger, .--drag").each((x, i) => {
+        $(".--drag-trigger, .--drag").forEach((x, i) => {
 
             if (x.has(".--drag-enabled")) return;
 
@@ -1754,7 +1759,7 @@ class fw {
 
     static tileClickEffectSelector(cls = null, clr = null) {
         if (!cls) return;
-        $(cls).each((x, i) => {
+        $(cls).forEach((x, i) => {
             if (!x.has("--effect-selector-attached")) {
                 x.addClass("-no-scrolls").on("click", function (e) {
                     if (this.classList.contains("-skip")) return;
@@ -1794,7 +1799,7 @@ class fw {
             )
             $("tooltip#tooltip").on("mouseleave", function(){ this.css({ display: "none" }) })
         }
-        $(".--tooltip").each(tip => {
+        $(".--tooltip").forEach(tip => {
             tip.on(EEvents.MOUSEENTER, function (e) {
                 if(!this.dataset.tip) return;
                 document.getElementById("tooltip").css({ display: 'none' }).html(this.dataset.tip == "@" ? this.textContent : this.dataset.tip).css({
@@ -1822,28 +1827,28 @@ class fw {
         // return wrapper && wrapper[0] == '#' ? t[0] : t
         return t
     }
+}
 
-};
+const
+initpool     = new pool()
+, $          = fw.$
+, bootloader = new loader()
+, app        = fw
+, maxis      = { x:0, y:0 }
+;;
 
-blend(window, {
-    maxis       : { x: 0, y: 0 }
-    , initpool  : new Pool()
-    , $         : fw.$
-    , bootloader: new Loader()
-    , app       : fw
-    , GET       : async (url, callback, args, head) => {
-        var res = await fw.call(url + (args ? `?${new URLSearchParams(args).toString()}` : ''), null, 'GET', head) ;;
-        try { res = JSON.parse(res.data) } catch(e) { res = res.data }
-        return callback ? callback(res) : res
-    }
-    , POST      : async (url, args, callback, head) => {
-        var res = await fw.call(url, args, 'POST', head) ;;
-        try { res = JSON.parse(res.data) } catch(e) { res = res.data }
-        return callback ? callback(res) : res
-    }
-})
+async function GET(url, callback, args, head){
+    var res = await fw.call(url + (args ? `?${new URLSearchParams(args).toString()}` : ''), null, 'GET', head) ;;
+    try { res = JSON.parse(res.data) } catch(e) { res = res.data }
+    return callback ? callback(res) : res
+}
 
-window.onmousemove = e => window.maxis = e
+async function POST(url, args, callback, head) {
+    var res = await fw.call(url, args, 'POST', head) ;;
+    try { res = JSON.parse(res.data) } catch(e) { res = res.data }
+    return callback ? callback(res) : res
+}
+
 window.oncontextmenu = e => {
     let trigger, evs = [] ;;
     if(e.path) e.path.forEach(e => {
@@ -1872,4 +1877,5 @@ window.oncontextmenu = e => {
 
 document.addEventListener("touchstart", function() {}, true);
 
-console.log(`  ____ _     ___   __  __  ___  ____  _____\n / ___| |   |_ _| |  \\/  |/ _ \\|  _ \\| ____|\n| |   | |    | |  | |\\/| | | | | | | |  _|\n| |___| |___ | |  | |  | | |_| | |_| | |___\n \\____|_____|___| |_|  |_|\\___/|____/|_____|\n\n`);
+// console.log('  __\n\ / _| __ _  __ _ _   _\n\| |_ / _` |/ _` | | | |\n\|  _| (_| | (_| | |_| |\n\|_|  \\__,_|\\__,_|\\__,_|')
+console.log("\n ___ _ __  _   _ _ __ ___   ___\n/ __| '_ \\| | | | '_ ` _ \\ / _ \\\n\\__ \\ |_) | |_| | | | | | |  __/\n|___/ .__/ \\__,_|_| |_| |_|\\___|\n    |_|\n")

@@ -1,0 +1,75 @@
+<template>
+    <div id='consulting' class="-relative -wrapper">
+
+        <div class="-absolute -zero -row -avoid-pointer --shadow" style="z-index:10;opacity:0;">
+            <div class="-row -content-center" style="height:6em">
+                <div class="-col-4" style="height:1em;transform: translateY(-1.125em); box-shadow: 0 0 4em black;"></div>
+            </div>
+        </div>
+
+        <div class="-row -bar -scrolls --text-stage">
+
+            <div class="-col-8 -content-left" style="padding-top: 4em;">
+
+                <span class="-row -content-left" style="font-size: 2em;">Consultoria de dados</span>
+                <div class="-row"><div class="-col-1 -left" style="border-bottom: 1px solid {{dark3}};"></div></div>
+
+                <p>A era digital trouxe consigo uma explosão de dados, e as empresas estão cada vez mais reconhecendo o valor dessas informações para impulsionar o crescimento e a tomada de decisões estratégicas. É nesse contexto que a consultoria de dados desempenha um papel fundamental. Neste artigo, vou tentar explicar as muitas aplicabilidades e  como a consultoria de dados pode impactar positivamente sua empresa, fornecendo insights valiosos, e discutir algumas formas de implementação dessa prática transformadora.</p>
+                <p style="margin-top:0">Este será um tópico meio longo, mas tenha paciência, creio que vou jogar um pouco de luz em suas dúvidas.</p>
+
+                <div class="-row -content-center" style="font-size: 2em;padding: .5em">···</div>
+
+                <!-- <span class="-roboto-bold -right" style="padding-top:0em">Análise e Visualização de Dados</span> -->
+                <span class="-row -content-left" style="font-size: 1.5em;">Análise e Visualização de Dados</span>
+                <p>Uma das principais contribuições da consultoria de dados é a análise e visualização clara deles. Por meio do uso de ferramentas e técnicas avançadas, podemos extrair informações relevantes dos dados brutos das empresas. Essas análises ajudam a identificar tendências, padrões e oportunidades de melhoria, permitindo que as empresas tomem decisões mais embasadas e estratégicas.</p>
+                <p style="margin-top:0">Exemplo de implementação: Podemos utilizar técnicas de análise exploratória, como estatísticas descritivas e visualizações gráficas, para identificar correlações entre variáveis-chave de negócios. Isso pode ajudar uma empresa a entender melhor o comportamento de seus clientes, identificar segmentos de mercado lucrativos e direcionar suas estratégias de marketing de maneira mais eficiente. Alguns métodos como Scrapping ou Crawling são menos ortodoxos mas têm dado resultados bastante impolgantes!</p>
+
+                <!-- <span class="-roboto-bold -right" style="padding-top:4em">Previsão e Modelagem de Dados</span> -->
+                <span class="-row -content-left" style="font-size: 1.5em;padding-top:1em">Previsão e Modelagem de Dados</span>
+                <p>A consultoria de dados também pode envolver a criação de modelos preditivos e de machine learning. Esses modelos utilizam algoritmos sofisticados para prever resultados futuros com base em dados históricos e padrões identificados. A implementação desses modelos pode ajudar as empresas a antecipar tendências, otimizar processos e tomar decisões proativas.</p>
+                <p style="margin-top:0">Exemplo de implementação: Para desenvolver um modelo de previsão de demanda para uma empresa de varejo, levamos em consideração variáveis como histórico de vendas, sazonalidade e fatores econômicos. Esse modelo pode auxiliar a empresa na tomada de decisões relacionadas a estoque, produção e estratégias de precificação. E vai muuuuuuito além!</p>
+
+                <!-- <span class="-roboto-bold -right" style="padding-top:4em">Gestão e Governança de Dados</span> -->
+                <span class="-row -content-left" style="font-size: 1.5em;padding-top:1em">Gestão e Governança de Dados</span>
+                <p>A consultoria de dados também desempenha um papel fundamental na gestão e governança de dados. Isso envolve a definição de políticas, processos e procedimentos para garantir a qualidade, a integridade e a segurança dos dados da empresa. A implementação de boas práticas nessa área assegura que os dados sejam confiáveis e estejam disponíveis quando necessários.</p>
+
+                <!-- <span class="-roboto-bold -right" style="padding-top:4em">Treinamento e Capacitação</span> -->
+                <span class="-row -content-left" style="font-size: 1.5em;padding-top:1em">Treinamento e Capacitação</span>
+                <p>Além das atividades diretas de consultoria, é importante oferecer treinamento e capacitação para os colaboradores das empresas. Isso permite que as equipes internas desenvolvam habilidades em análise de dados, uso de ferramentas e interpretação de insights, fortalecendo a cultura data-driven.</p>
+                <p style="margin-top:0">Podemos colher bons resultados com a promoção de  workshops e treinamentos para os colaboradores da empresa, abordando tópicos como análise exploratória de dados, estatística básica e visualização de dados. Todomundo deveria conhecer uma planilha quando diante de uma, isso clarifica o entendimento de rumos básicos da empresa. Essa capacitação ajuda os colaboradores a entenderem melhor os dados e a tomarem decisões inteligentes.</p>
+
+                <div class="-row -content-center" style="font-size: 2em;padding: .5em">···</div>
+
+                <p>A consultoria de dados tem o potencial de impactar positivamente sua empresa, fornecendo insights estratégicos que impulsionam o crescimento e a competitividade. Seja por meio da análise e visualização de dados, previsão e modelagem, gestão e governança, ou treinamento e capacitação, a implementação da consultoria de dados permite que as empresas aproveitem ao máximo seu potencial de dados, tomando decisões informadas e direcionadas para o sucesso.</p>
+
+                <div class="-row -content-center" style="padding:4em 0;opacity:.32">
+                    <img class="-col-4 -pointer" src="logos/arrow.svg" onclick="window.app.pragma = window.app.current_pragma + 1">
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="-fixed -zero-bottom -row -content-center -avoid-pointer" style="height:6em;">
+            <div class="-col-8" style="height:1em;transform: translateY(6em); box-shadow: 0 0 4em black;bottom:0"></div>
+        </div>
+
+    </div>
+
+    <script>
+        (function(){
+            const
+            shadow = $('#consulting .--shadow')[0]
+            , scrollev = new throttle(e => {
+                const { scrollTop } = e.target ;;
+                if(scrollTop > 10) shadow.stop().anime({ opacity: 1 })
+                else shadow.stop().anime({ opacity: 0 })
+            }, 32)
+            ;;
+            $('#consulting .--text-stage')[0].on('scroll', e => scrollev.fire(e))
+
+            // $('#app')[0].app(IMG("bg/consulting.png", "-fixed -zero-top-right --big-picture -bar -avoid-pointer", { opacity:0, top:'2em' }))
+            // setTimeout(_ => $('.--big-picture')[0].anime({ opacity:.04, top:0 }, AL), 256)
+        })()
+    </script>
+</template>
