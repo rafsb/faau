@@ -1,7 +1,7 @@
 global.SOCKET = process.env.SOCKET || 9000
 
 const
-ws = require('ws')
+ws = require('wss')
 , io = require('./utils/fio')
 , fobject = require('./utils/fobject')
 , sockserver = new ws.Server({ port: SOCKET })
