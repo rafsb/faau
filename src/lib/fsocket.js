@@ -1,5 +1,3 @@
-global.SOCKET = process.env.SOCKET || 9000
-
 const
 ws = require('ws')
 , io = require('./utils/fio')
