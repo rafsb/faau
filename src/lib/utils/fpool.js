@@ -1,4 +1,4 @@
-module.exports = class fPool {
+module.exports = class fpool {
     add(x=null,v=null) {
         if(x) {
             if(Array.isArray(x)) x.map(_x => this.add(_x));

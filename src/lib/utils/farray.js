@@ -124,7 +124,7 @@ module.exports = class fArray extends Array {
 
             /* TODO POLINOMIAL FORMULA */
             case (INTERPOLATE): {
-                if(helper==null||helper==undefined) return app.error("Ops! a 'x' value is needed for array basic interpolation...")
+                if(helper==null||helper==undefined) return fw.error("Ops! a 'x' value is needed for array basic interpolation...")
                 let
                 x = helper
                 , yi = this.extract(_y => Array.isArray(_y) ? _y[1] : _y*1)

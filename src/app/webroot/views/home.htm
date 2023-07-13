@@ -13,7 +13,7 @@
     <!-- SCRIPT -->
     <script>
         (async _ => {
-            app.load('components/header.htm', null, $('header#head')[0])
+            fw.load(`components/${fw.is_mobile() ? 'm.' : ''}header.htm`, null, $('header#head')[0])
             const
             h = window.innerHeight
             , w = window.innerWidth

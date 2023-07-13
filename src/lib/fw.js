@@ -160,8 +160,8 @@ class fw {
         this.initial_pragma = 0
         this.current        = 0
         this.last           = 0
-        this.initpool       = new Pool()
-        this.onPragmaChange = new Pool()
+        this.initpool       = new pool()
+        this.onPragmaChange = new pool()
         this.components = {}
         this.prism      = {
             ALIZARIN:"#E84C3D"

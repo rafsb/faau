@@ -40,8 +40,8 @@ bootloader.loadComponents.add(async _ => {
     /**
      * HOME
     */
-   bootloader.dependencies.add('home')
-    app.load(`home.htm`)
+    bootloader.dependencies.add('home')
+    fw.load((fw.is_mobile() ? 'm.' : '') + `home.htm`)
 })
 
 bootloader.loadComponents.add(async _ => {
@@ -50,8 +50,8 @@ bootloader.loadComponents.add(async _ => {
     */
     [ "welcome", "ai", "bigdata", "gpt", "consulting", "dev", "contact" ].forEach(addr => {
         bootloader.dependencies.add(addr)
-        app.call(`pragmas/${app.is_mobile() ? 'm/' : ''}${addr}.htm`).then(res => {
-            app.components[addr] = res.data.prepare()
+        fw.call(`pragmas/${fw.is_mobile() ? 'm.' : ''}${addr}.htm`).then(res => {
+            fw.components[addr] = res.data.prepare()
             bootloader.ready(addr)
         })
     })
@@ -60,12 +60,12 @@ bootloader.loadComponents.add(async _ => {
 /**
  * LET THERE BE MAGIC
  */
-app.initial_pragma = EPragmas.WELCOME
+fw.initial_pragma = EPragmas.WELCOME
 
 const pragma_names = Object.keys(EPragmas).map(i => i.toLowerCase()) ;;
-app.onPragmaChange.add((pragma, args) => {
+fw.onPragmaChange.add((pragma, args) => {
 
-    if(pragma === app.last_pragma) return
+    if(pragma === fw.last_pragma) return
 
     $('.--big-picture').desappear(AL, true)
 
@@ -77,7 +77,7 @@ app.onPragmaChange.add((pragma, args) => {
         transform: `translateY(2em)`
         , filter: 'opacity(0)'
     }).then(stage => {
-        const content = app.components[pragma_names[pragma]].morph() ;;
+        const content = fw.components[pragma_names[pragma]].morph() ;;
         stage.empty().app(content).anime({
             transform: `translateY(0)`
             , filter: 'opacity(1)'
@@ -91,18 +91,18 @@ app.onPragmaChange.add((pragma, args) => {
  * tooltip() function must be fired to
  * make these hints work
  */
-blend(app.hints, {
+blend(fw.hints, {
     // some_id: "A simple tootlip used as example"
 })
 
 const swip = new swipe($('#app').at()) ;;
 swip.right(_ => {
-    if(app.current_pragma) app.pragma = app.current_pragma - 1
-    else app.pragma = Object.keys(EPragmas).length - 1
+    if(fw.current_pragma) fw.pragma = fw.current_pragma - 1
+    else fw.pragma = Object.keys(EPragmas).length - 1
 })
 swip.left(_ => {
-    if(app.current_pragma == Object.keys(EPragmas).length - 1) app.pragma = 0
-    else app.pragma = app.current_pragma + 1
+    if(fw.current_pragma == Object.keys(EPragmas).length - 1) fw.pragma = 0
+    else fw.pragma = fw.current_pragma + 1
 })
 swip.fire()
 

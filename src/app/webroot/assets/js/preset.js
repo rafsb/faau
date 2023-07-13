@@ -7,11 +7,9 @@
  * CONFIG
  *
  */
-window.VERBOSE           = true
 window.ANIMATION_LENGTH  = 400
 window.AL 				 = ANIMATION_LENGTH
 window.APP_DEFAULT_THEME = "light"
-window.APP_NEEDS_LOGIN   = false
 
 /*
  * ENUMS
@@ -26,17 +24,18 @@ window.ELocales = Object.freeze({
 })
 
 const
-ws = new WebSocket('wss://' + location.hostname + ':' + location.port)
+wsport = location.port
+, ws = new WebSocket('wss://' + location.hostname + ':' + wsport)
 , socket_callbacks = { }
-, sock_sender = req => {
+, sock_sender = async req => {
     if(ws.readyState === 1) ws.send(req)
-    else setTimeout(_ => sock_sender(req), AL/2)
+    else setTimeout(_ => sock_sender(req), 128)
 }
-, sock = async (path, data) => {
+, sock = (path, data) => {
     const
-    callback = typeof data == "function" ? data : (data?.callback ? data.callback : (data?.cb ? data.cb : null))
+    callback = typeof data == "function" ? data : ((data.callback ?  data.callback : data.cb) || null)
     , emitter = callback ? "fn" + callback.toString().hash() : null
-    , payload = blend(data?.data||{}, { ts: fdate.time(), path, emitter, device: app.device, token: app.token })
+    , payload = blend(data?.data||{}, { ts: FDate.time(), path, emitter, device: fw.device })
     ;;
     if(callback) socket_callbacks[emitter] = callback
     let req ;;
@@ -44,7 +43,6 @@ ws = new WebSocket('wss://' + location.hostname + ':' + location.port)
     sock_sender(req)
 }
 ;;
-
 ws.onmessage = function(res) {
     try { res = JSON.parse(res.data) } catch(e) { console.warn(e); res = res.data }
     const data = typeof res == 'string' ? res : res.data ;;
@@ -54,14 +52,14 @@ ws.onmessage = function(res) {
 /**
  * LET THERE BE MAGIC
  */
-blend(app, {
+blend(fw, {
     components      : {}
     , caches         : {}
     , flags          : new Set()
-    , locale         : app.storage("locale") || app.storage("locale", ELocales.BR)
-    , theme          : app.storage("theme")  || app.storage("theme", APP_DEFAULT_THEME)
-    , device         : app.storage("device") || app.storage("device", app.uuid())
-    , uat            : app.storage("uat")
+    , locale         : fw.storage("locale") || fw.storage("locale", ELocales.BR)
+    , theme          : fw.storage("theme")  || fw.storage("theme", APP_DEFAULT_THEME)
+    , device         : fw.storage("device") || fw.storage("device", fw.nuid(32))
+    , uat            : fw.storage("uat")
     , initial_pragma : null
     , onPragmaChange : new pool()
     , contextEvents  : {}
@@ -81,12 +79,12 @@ bootloader.dependencies = new Set([
  * after this execution queue and all bootloader`s
  * loaders are all done
  */
-;; (async function() {
+;; (async function(app) {
 
     /*** SPLASH ***/
     {
         bootloader.dependencies.add("splash")
-        await app.load("views/splash.htm")
+        await fw.load("views/splash.htm")
     }
 
     /*** VERSION ***/
@@ -95,35 +93,37 @@ bootloader.dependencies = new Set([
         try {
             sock(`version`, res => {
 
-                app.v = res
-                if(app.storage('version') != app.v) {
+                fw.v = res
+                if(fw.storage('version') != fw.v) {
 
-                    app.warning('Atualizando versão de sistema...')
-                    app.clearStorage()
-                    app.storage('version', app.v)
-                    app.storage('uat', app.uat || "")
-                    app.storage('device', app.device)
+                    fw.warning('Atualizando versão de sistema...')
+                    fw.clearStorage()
+                    fw.storage('version', fw.v)
+                    fw.storage('uat', fw.uat || "")
+                    fw.storage('device', fw.device)
                     setTimeout(_ => location.reload(), AL * 4)
 
                 } else {
 
-                    function theme(callback) {
-                        bootloader.dependencies.add("theme")
-                        sock(`theme`, {
-                            data: { theme: app.theme || APP_DEFAULT_THEME }
-                            , cb: async res => {
-                                blend(app.pallete, res)
-                                callback && callback.apply()
-                                bootloader.ready('theme')
+                    // sock('auth/check', { data: { uat: fw.uat }, callback: res =>{
+                    //     if(res.status) {
+                            bootloader.dependencies.add("theme")
+                            try {
+                                sock(`theme`, {
+                                    data: { theme: fw.theme }
+                                    , cb: async res => {
+                                        blend(fw.pallete, res)
+                                        bootloader.loadComponents.fire()
+                                        bootloader.onFinishLoading.add(_ => [ "background", "foreground" ].forEach(i => $(`.--${i}`).anime({ background: fw.pallete[i.toUpperCase()] })))
+                                        bootloader.ready('theme')
+                                    }
+                                })
+                            } catch(e) {
+                                fw.warning("Não foi possível carregar o tema escolhido, usaremos o padrão do sistema!")
+                                bootloader.loadComponents.fire()
                             }
-                        })
-                    }
-
-                    if(APP_NEEDS_LOGIN) sock('users/check', { data: { uat: app.uat }, callback: res =>{
-                        if(res.status) theme(_ => bootloader.loadComponents.fire())
-                        else app.exec('login')
-                    } })
-                    else theme(_ => bootloader.loadComponents.fire())
+                    //     } else fw.exec('login')
+                    // } })
 
                     bootloader.ready("v")
 
@@ -131,7 +131,7 @@ bootloader.dependencies = new Set([
 
             })
         } catch(e) {
-            app.warning("Não foi possível verificar a versão atual do sistema, tentaremos trabalhar com as informações que temos!")
+            fw.warning("Não foi possível verificar a versão atual do sistema, tentaremos trabalhar com as informações que temos!")
             if(VERBOSE) console.trace(e)
         }
     }
@@ -147,7 +147,7 @@ bootloader.dependencies = new Set([
 
     setTimeout(_ => bootloader.ready("ready"), AL)
 
-})()
+})(window.app)
 
 /*
  * This pool will fire after all loaders are true
@@ -157,9 +157,7 @@ bootloader.onFinishLoading.add(function() {
     /**
      * commonly used helpers, uncommnt to fire
     */
-    app.pragma = app.initial_pragma
-
-    sock('stats/device/'+app.device)
+    fw.pragma = fw.initial_pragma
 
 
 })
@@ -169,7 +167,7 @@ bootloader.onFinishLoading.add(function() {
  * tooltip() function must be fired to
  * make these hints work
  */
-app.hints = {
+fw.hints = {
     // some_id: "A simple tootlip used as example"
 }
 

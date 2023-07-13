@@ -9,7 +9,7 @@
 
         <div class="-relative -row -scrolls -bar --text-stage">
 
-            <div class="-col-8 -content-left" style="padding-top: 4em;">
+            <div class="-col-8 -content-left" style="padding: 4em 2em;">
 
                 <span class="-row -content-left" style="font-size: 2em;">Contato</span>
                 <div class="-row"><div class="-col-1 -left" style="border-bottom: 1px solid {{dark3}};"></div></div>
@@ -17,7 +17,7 @@
                 <div class="-col-6 -left" style="padding-right:.5em">
                     <p>Gostaria de saber mais sobre meu trabalho ou discutir uma possível colaboração? Fique à vontade para entrar em contato.<br>Estou ansioso para conhecer suas necessidades e como posso ajudar.</p>
                     <p>Preencha o formulário de contato abaixo ou envie um e-mail diretamente para mim. Responderei o mais breve possível!</p>
-                    <p><b>Rafael Bertolini</b><br>---<br>+55 11 97632 4576<br>rafael@faau.me</p>
+                    <p><b>Rafael Bertolini</b><br>---<br><a href="callto:+55 11 97632 4576">+55 11 97632 4576</a><br><a href="mailto:rafael@faau.me">rafael@faau.me</a></p>
                     <nav id="socials" class="-row -content-center">
                         <div>
                             <a class="-right -only-pointer -tooltip" data-tip="Github" href="https://github.com/rafsb" target="_blank">
@@ -42,7 +42,7 @@
                     </nav>
                 </div>
 
-                <div class="-col-6 -left" style="padding-left:.5em">
+                <div class="-col-6 -left" style="padding:1em">
                     <form id="sender" action="javascript:void(0)" class="-wrapper -blur">
                         <p>Deixe-me uma mensagem:</p>
                         <input name="mail" type="mail" class="-row" style="padding:.5em 1em;border:1px solid {{dark3}};background:{{dark1}};margin:.5em 0" placeholder="E-MAIL">
@@ -70,17 +70,18 @@
         }
         #socials > div >a {
             position: relative;
-            height: 1.5em;
-            width: 1.5em;
-            margin-left: .25em;
+            height: 2em;
+            width: 2em;
+            margin: .25em;
         }
         #socials > div > a:hover {
             background: {{foreground}};
             filter: invert(1)
         }
         #socials > div > a > img {
-            height:1em;
-            width:1em;
+            height:2em;
+            width:2em;
+            padding:.25em
         }
     </style>
 
@@ -102,22 +103,22 @@
                     if(e.target.dataset.state*1) {
                         pass = true
                         const sender = e.target.upFind('form').json() ;;
-                        if(!sender.mail) app.error("Preencha seu email, por favor...") && (pass=false)
-                        if(!sender.message) app.error("Hey! Não esqueça de me deixar uma mensagem ali no campo '<i>MENSAGEM'</i>...") && (pass=false)
+                        if(!sender.mail) fw.error("Preencha seu email, por favor...") && (pass=false)
+                        if(!sender.message) fw.error("Hey! Não esqueça de me deixar uma mensagem ali no campo '<i>MENSAGEM'</i>...") && (pass=false)
                         if(pass) sock('stats/messages', {
                             data: sender
                             , cb: res => {
                                if(res.status) {
-                                    app.success('Mensagem enviada com sucesso...')
+                                    fw.success('Mensagem enviada com sucesso...')
                                     e.target.upFind('form').$('input, textarea').forEach(e => e.value = "")
-                               } else app.error('Sua mensagem não pôde ser enviada, tente novamente mais tarde...')
+                               } else fw.error('Sua mensagem não pôde ser enviada, tente novamente mais tarde...')
                             }
                         })
                     } else {
                         e.target.dataset.state = 1
                         e.target.text("Enviar").anime({ background: "{{nephritis}}" })
                     }
-                } else app.error("Ops! Parece que vc é um bot <i>safadin</i>! Tente de novo...") && bot++
+                } else fw.error("Ops! Parece que vc é um bot <i>safadin</i>! Tente de novo...") && bot++
             })
         })()
     </script>

@@ -102,22 +102,22 @@
                     if(e.target.dataset.state*1) {
                         pass = true
                         const sender = e.target.upFind('form').json() ;;
-                        if(!sender.mail) app.error("Preencha seu email, por favor...") && (pass=false)
-                        if(!sender.message) app.error("Hey! Não esqueça de me deixar uma mensagem ali no campo '<i>MENSAGEM'</i>...") && (pass=false)
+                        if(!sender.mail) fw.error("Preencha seu email, por favor...") && (pass=false)
+                        if(!sender.message) fw.error("Hey! Não esqueça de me deixar uma mensagem ali no campo '<i>MENSAGEM'</i>...") && (pass=false)
                         if(pass) sock('stats/messages', {
                             data: sender
                             , cb: res => {
                                if(res.status) {
-                                    app.success('Mensagem enviada com sucesso...')
+                                    fw.success('Mensagem enviada com sucesso...')
                                     e.target.upFind('form').$('input, textarea').forEach(e => e.value = "")
-                               } else app.error('Sua mensagem não pôde ser enviada, tente novamente mais tarde...')
+                               } else fw.error('Sua mensagem não pôde ser enviada, tente novamente mais tarde...')
                             }
                         })
                     } else {
                         e.target.dataset.state = 1
                         e.target.text("Enviar").anime({ background: "{{nephritis}}" })
                     }
-                } else app.error("Ops! Parece que vc é um bot <i>safadin</i>! Tente de novo...") && bot++
+                } else fw.error("Ops! Parece que vc é um bot <i>safadin</i>! Tente de novo...") && bot++
             })
         })()
     </script>

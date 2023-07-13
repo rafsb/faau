@@ -58,9 +58,8 @@ DEBUG = false
 , ITALIC = (t,c,s) => TAG("i",c,s,t)
 , ROW = (c, s, e) => { const x = DIV("-row " + (c || ''), s); if (e) { typeof e == "string" ? x.html(e) : x.app(e); } return x }
 , WSPAN = (t,c,s,n="span") => TAG(n,c,blend({ paddingLeft:"1em" }, s||{}),t)
-, blend = function (e) {
-    if(!e) e = {}
-    for (let i = 1; i <= arguments.length - 1; i++) if(arguments[i]) for (let j in arguments[i]) e[j] = arguments[i][j];
+, blend = function (e = {}) {
+    for (let i = 1; i <= arguments.length - 1; i++) for (let j in arguments[i]) e[j] = arguments[i][j];
     return e
 }
 , EEvents = Object.freeze({
@@ -103,7 +102,7 @@ blend(NodeList.prototype, {
         return [].slice.call(this);
     }
     , each: function (f) {
-        return this.array().forEach(f)
+        return this.array().each(f)
     }
     , extract: function (f) {
         return this.array().extract(f)
@@ -115,21 +114,21 @@ blend(HTMLCollection.prototype, {
         return [].slice.call(this);
     }
     , each: function (f) {
-        return this.array().forEach(f)
+        return this.array().each(f)
     }
     , extract: function (f) {
         return this.array().extract(f)
     }
     , evalute: function () {
-        this.array().forEach(el => el.evalute())
+        this.array().each(el => el.evalute())
     }
 })
 
 blend(HTMLFormElement.prototype, {
     json: function () {
         let tmp = {} ;;
-        this.get("input, textarea, select, .-value, .--field").forEach(o => {
-            if (!o.has("-skip") && (o.name || o.dataset.name)) {
+        this.$("input, textarea, select, .-value, .-field").forEach(o => {
+            if (o.name || o.dataset.name) {
                 let
                 name = o.name || o.dataset.name
                 , value = o.value || o.dataset.value || o.textContent
@@ -157,7 +156,7 @@ blend(Element.prototype, {
             el.style.transition = "all " + len.toFixed(2) + "s " + trans;
             el.style.transitionDelay = (delay ? delay / 1000 : 0).toFixed(2) + "s";
             for (let i in obj) el.style[i] = obj[i];
-            setTimeout(function (e) { return ok(e) }, len * 1000 + delay + 1, el)
+            setTimeout(function (e) { return ok(e) }, len * 1000 + delay, el)
         })
     }
     , mime: function () {
@@ -187,8 +186,14 @@ blend(Element.prototype, {
         return this;
     }
     , html: function (tx = null) {
-        if (tx !== null && tx !== false) this.innerHTML = tx;
-        else return this.innerHTML;
+        if (tx !== null && tx !== false) {
+            if(typeof tx == 'string') this.innerHTML = tx;
+            else try {
+                const p = this ;;
+                Array.from(tx).forEach(e => p.app(e))
+            } catch(e) {}
+            this.evalute()
+        } else return this.innerHTML;
         return this
     }
     , data: function (o = null, fn = null) {
@@ -208,7 +213,7 @@ blend(Element.prototype, {
         let el = this;
         if (Array.isArray(obj) || HTMLCollection.prototype.isPrototypeOf(obj) || NodeList.prototype.isPrototypeOf(obj)) {
             Array.from(obj).forEach(o => el._put_where_(o, w));
-        } else if (obj) el.insertAdjacentElement(w, obj.cloneNode(true));
+        } else if (obj) el.insertAdjacentElement(w, obj);
         return this
     }
     , aft: function (obj = null) { return this._put_where_(obj, "afterend") }
@@ -233,16 +238,19 @@ blend(Element.prototype, {
         return this
     }
     , index: function () {
-        return [].slice.call(this.parent().children).indexOf(this) - 1;
+        return [].slice.call(this.parent().children).indexOf(this)
     }
     , evalute: function () {
         if (this.tagName == 'SCRIPT') {
-            const s = document.createElement('script') ;;
-            s.type='text/javascript'
-            s.innerHTML = this.innerHTML
-            document.getElementsByTagName('head')[0].appendChild(s)
+            // console.log(this.textContent)
+            eval(this.textContent);
             this.remove()
-        } else this.$("script").forEach(x => x.evalute())
+        } else {
+            fw.get("script", this).each(x => {
+                eval(x.textContent);
+                x.remove()
+            })
+        }
         return this
     }
     , on: function (action, fn, passive = { passive: true }) {
@@ -271,10 +279,12 @@ blend(Element.prototype, {
         me = this
         , parent = this.parent(parent_pace)
         ;;
-        return (me.offsetTop >= parent.scrollTop && me.offsetTop < parent.scrollTop + parent.offsetHeight) ? {
+        return (
+            me.offsetTop > parent.scrollTop + parent.offsetHeight || me.offsetTop + me.offsetHeight < parent.scrollTop
+        ) ? false : {
             offset: me.offsetTop - parent.scrollTop,
             where: (me.offsetTop - parent.scrollTop) / parent.clientHeight
-        } : false
+        }
     }
     , scrolls: function(el,fn=null) {
         if (!el) return -1;
@@ -353,7 +363,7 @@ blend(Element.prototype, {
         return this
     }
     , desappear: function (len = ANIMATION_LENGTH, remove = false, fn = null) {
-        return this.stop().anime({ opacity: 0 }, len).then(x => { if (remove) x.remove(); else x.css({ display: "none" }); if (fn) fn(remove ? null : this); });
+        return this.stop().anime({ opacity: 0, top:'1em' }, len).then(x => { if (remove) x.remove(); else x.css({ display: "none", top:0 }); if (fn) fn(remove ? null : this); });
     }
     , remove: function () { if (this && this.parentElement) this.parentElement.removeChild(this) }
 });
@@ -406,8 +416,9 @@ blend(String.prototype, {
     }
     , desnerdify: function () {
         let
-            n = Number(this.replace(/[^0-9\.]/g, '').replace(',', '.'))
-            , s = this.replace(/[^a-zA-Z]/g, '');
+        n = Number(this.replace(/[^0-9\.]/g, '').replace(',', '.'))
+        , s = this.replace(/[^a-zA-Z]/g, '')
+        ;;
         switch (s) {
             case "tri": n *= 1000000000000; break;
             case "bi": n *= 1000000000; break;
@@ -435,7 +446,7 @@ blend(String.prototype, {
     }
     , prepare: function (obj = null) {
         let str = this.trim() ;;
-        obj = blend({}, app.pallete, obj)
+        obj = blend(fw.pallete, obj)
         const founds = str.match(/{{([^{}]+)}}/gi)?.map(i => i.replace(/{|}/g, '')) || [] ;;
         founds.forEach(x => {
             let rgx = new RegExp("{{" + x.trim() + "}}", "gi") ;;
@@ -452,7 +463,7 @@ blend(Array.prototype, {
     , extract: function (fn = null) {
         if (!fn || !this.length) return this;
         let narr = [];
-        this.forEach((o, i) => {
+        this.each((o, i) => {
             let x = fn(o, i);
             if (x != null && x != undefined) narr.push(x)
         })
@@ -622,7 +633,7 @@ blend(Array.prototype, {
                 if (y == null || y == undefined) nulls.push(x);
                 else return [x, y];
             })
-        nulls.forEach((x, n) => narr.push([n, narr.calc(INTERPOLATE, n)]));
+        nulls.each((x, n) => narr.push([n, narr.calc(INTERPOLATE, n)]));
         narr.sort(function (a, b) { return a[0] - b[0] })
         return narr;
     }
@@ -650,58 +661,58 @@ blend(Array.prototype, {
         return arr;
     }
     , anime: function (obj, len = ANIMATION_LENGTH, delay = 0, trans = null) {
-        this.forEach(x => x.anime(obj, len, delay, trans));
+        this.each(x => x.anime(obj, len, delay, trans));
         return this
     }
     , stop: function () {
-        this.forEach(x => x.stop())
+        this.each(x => x.stop())
         return this
     }
     , raise: function () {
-        this.forEach(x => x.raise());
+        this.each(x => x.raise());
         return this
     }
     , css: function (obj, fn = null) {
-        this.forEach(x => x.css(obj, fn));
+        this.each(x => x.css(obj, fn));
         return this
     }
     , data: function (obj, fn = null) {
-        this.forEach(x => x.data(obj, fn));
+        this.each(x => x.data(obj, fn));
         return this
     }
     , attr: function (obj, fn = null) {
-        this.forEach(x => x.attr(obj, fn));
+        this.each(x => x.attr(obj, fn));
         return this
     }
     , text: function (txt, fn = null) {
-        this.forEach(x => x.text(txt, fn));
+        this.each(x => x.text(txt, fn));
         return this
     }
     , addClass: function (cl = null) {
-        if (cl) this.forEach(x => x.addClass(cl));
+        if (cl) this.each(x => x.addClass(cl));
         return this
     }
     , remClass: function (cl = null) {
-        if (cl) this.forEach(x => x.remClass(cl));
+        if (cl) this.each(x => x.remClass(cl));
         return this
     }
     , removeClass: function (cl = null) {
         return this.remClass(cl)
     }
     , toggleClass: function(cl=null) {
-        if(cl) this.forEach(x => x.toggleClass(cl));
+        if(cl) this.each(x => x.toggleClass(cl));
         return this
     }
     , remove: function () {
-        this.forEach(x => x.remove());
+        this.each(x => x.remove());
         return this
     }
     , on: function (act = null, fn = null) {
-        if (act && fn) this.forEach(x => x.on(act, fn));
+        if (act && fn) this.each(x => x.on(act, fn));
         return this
     }
     , empty: function () {
-        this.forEach(x => x.empty())
+        this.each(x => x.empty())
         return this
     }
     , clear: function () {
@@ -710,26 +721,26 @@ blend(Array.prototype, {
         })
     }
     , evalute: function () {
-        this.forEach(el => el.evalute())
+        this.each(el => el.evalute())
     }
     , html: function (v) {
-        this.forEach(el => el.html(v));
+        this.each(el => el.html(v));
         return this
     }
     , show: function (display = 'inline-block') {
         return this.map(x => x.style.display = display || 'inline-block')
     }
     , appear: function (len = ANIMATION_LENGTH) {
-        return this.forEach(x => x.css({ display: 'block' }, x => x.anime({ opacity: 1 }, len, 1)))
+        return this.each(x => x.css({ display: 'block', top:'1em' }, x => x.anime({ opacity: 1, top:0 }, len, 1)))
     }
     , hide: function () {
         return this.map(x => x.style.display = 'none')
     }
     , desappear: function (len = ANIMATION_LENGTH, remove = false, fn = null) {
-        return this.forEach(x => x.desappear(len, remove, fn))
+        return this.each(x => x.desappear(len, remove, fn))
     }
     , val: function(v=null){
-        if(v) this.forEach(x => { if(x.tagName.toLowerCase()=="input") x.value = v })
+        if(v) this.each(x => { if(x.tagName.toLowerCase()=="input") x.value = v })
         return this
     }
     , app: function (el = null) {
@@ -755,21 +766,21 @@ Object.defineProperty(Object.prototype, "spy", {
 // | (__| | (_| \__ \__ \  __/\__ \
 //  \___|_|\__,_|___/___/\___||___/
 
-class fdate extends Date {
+class FDate extends Date {
 
     plus(n) {
         let
         date = new Date(this.valueOf());
         date.setDate(date.getDate() + n);
-        return new fdate(date)
+        return new FDate(date)
     }
 
     export(format = TS_MASK){
         let
-        d = this || fdate.now()
+        d = this || FDate.now()
         , arr = format.split("")
         ;;
-        arr.forEach(n => {
+        arr.each(n => {
             switch(n){
                 case "Y": format = format.replace(n, d.getFullYear());                             break;
                 case "y": format = format.replace(n, ((d.getYear()-100)   + "").fill("0", 2, -1)); break;
@@ -796,13 +807,13 @@ class fdate extends Date {
     }
 
     isValid(date){
-        if(date) return (new fdate(date)).isValid();
+        if(date) return (new FDate(date)).isValid();
         else if(this.getTime()) return this
         return null
     }
 
     now(){
-        return new fdate()
+        return new FDate()
     }
 
     time(){
@@ -819,54 +830,64 @@ class fdate extends Date {
         var dat ;;
 
         if(!isNaN(datestr)) {
-            if((datestr+'').length == 10) datestr = parseInt(datestr + '000');
-            dat = new fdate();
+            dat = new FDate();
             dat.setTime(datestr);
-        } //else dat = new fdate(datestr);
-
-        if(dat&&dat.getTime()) return dat;
-        datestr = (datestr).toLowerCase();
+        }
+        if(dat&&dat.getTime()) return dat
 
         let
         datefound = null
-        , i = 0
-        , fmatch = datestr.replace(/[.,-/]/gi, ' ').replace(/\s+/gi, ' ').match(/[a-z]{3}[\s-/][0-9]{2}[\s-/][0-9]{4}/gi)
+        , hourfound = null
+        , fmatch
         ;;
 
-        if(fmatch?.length){
-            datestr = fmatch[0].split(/[\s-/]/gi);
-            datestr = datestr[1] + '-' + datestr[0] + '-' + datestr[2]
+        fmatch = datestr.match(/\b\d{2,4}([\-\/ ])\d{2}\1\d{2,4}(T|\b)/)
+        if(fmatch?.length) {
+            const tmp = fmatch[0].replace("T", "") ;;
+            if(tmp.match(/^\d{2}([\-\/ ])\d{2}([\-\/ ])\d{2,4}$/)) datefound = tmp
+                .split(/[\-\/ ]/)
+                .reverse()
+                .map((x, i) => !i && x.length==2 ? `20${x}` : x)
+                .map(x => x*1 > (new Date).getFullYear() ? (x*1 - 100)+'' : x)
+                .join('-')
+            ; else datefound = tmp
         }
+
+        fmatch = datestr.match(/(T|\b)\d{1,2}:\d{2}/)
+        if(fmatch?.length) hourfound = fmatch[0].replace("T", "")+":00.000Z"
+
+        return datefound + (hourfound ? `T${hourfound}` : '')
+
+
+        dat = new FDate(datestr)
+        if(dat&&dat.getTime()) return dat
 
         MONTHS.map((m, i) => datestr = datestr.replace(m, (((i++%12)+1)+"").fill("0", 2, -1)));
         datestr = datestr.replace(/[^a-z0-9:]|(rd|th|nd|de)/gi, ' ').replace(/\s+/gi, ' ').trim();
 
-        [
-            /[0-9]{2}.{1,5}[0-9]{2}.{1,5}[0-9]{4}/gi
-            , /[0-9]{4}.{1,5}[0-9]{2}.{1,5}[0-9]{2}/gi
-        ].forEach(rx => {
-            if(datefound) return;
-            const dt = datestr.match(rx);
-            if(dt&&dt.length) datefound = dt[0].replace(/\s+/gi, '-')
-        })
+        const dt = datestr.match(/\d{2,4}([.\-/ ])\d{2}\1\d{2,4}\b/);
+        if(dt&&dt.length) {
+            datefound = dt[0].replace(/\s+/gi, '-')
+            let dat ;;
+            dat = datefound.match(/\d{2}\-\d{2}\-\d{4}/gi) // xx/xx/xxxx
+            if(dat&&dat.length) datefound = dat[0].split('-').reverse().join('-')
+            dat = datefound.match(/\d{2}\-\d{2}\-\d{2}\b/gi) // xx/xx/xx
+            if(dat&&dat.length) datefound = dat[0].split('-').reverse().map((x, i) => i ? x : `20${x}`).join('-')
 
-        if(datefound) {
-            const dat = datefound.match(/[0-9]{2}\-[0-9]{2}\-[0-9]{4}/gi);
-            if(dat&&dat.length) datefound = datefound.split('-').reverse().join('-')
             datefound = datefound.slice(0, 10)
         }
 
-        datefound = datefound ? new fdate(datefound+"T03:00:00.000Z") : false;
+        datefound = datefound ? new FDate(datefound+"T03:00:00.000Z") : false;
 
-        return datefound && datefound.as('Y')*1 > 1000 ? datefound : false
+        return datefound //&& datefound.as('Y')*1 > 1000 ? datefound : false
     }
 
     static now(){
-        return new fdate()
+        return new FDate()
     }
 
     static plus(n=1){
-        return fdate.now().plus(n)
+        return FDate.now().plus(n)
     }
 
     static time(){
@@ -874,27 +895,27 @@ class fdate extends Date {
     }
 
     static at(n){
-        return fdate.now().plus(n)
+        return FDate.now().plus(n)
     }
 
     static as(format=TS_MASK){
-        return fdate.now().export(format)
+        return FDate.now().export(format)
     }
 
     static format(format){
-        return fdate.now().export(format)
+        return FDate.now().export(format)
     }
 
     static cast(date){
-        return new fdate(date || new Date)
+        return new FDate(date || new Date)
     }
 
     static yday(){
-        return parseInt(fdate.plus(-1).getTime()/1000)*1000
+        return parseInt(FDate.plus(-1).getTime()/1000)*1000
     }
 
     static tday(){
-        return parseInt(fdate.time()/1000)*1000
+        return parseInt(FDate.time()/1000)*1000
     }
 }
 
@@ -915,23 +936,21 @@ class pool {
     conf(o = null) {
         if(o) {
             if (typeof o == 'object') blend(this.setup, o)
-            else this.setup[fw.nuid(8)] = o
+            else this.setup.args.push(o)
         }
         return this
     }
 
     fire(x = null) {
-        if (typeof x == "function") {
+        if (x && typeof x == "function") {
             this.add(x);
             x = null
         }
         const
         pool = this
         , initlen = pool.execution.length
-        , fn = i => {
-            if(i < initlen) Promise.resolve(pool.execution[i](x, i, pool.setup)).then(_ => fn(++i))
-        }
-        ;;
+        , fn = i => i < initlen && Promise.resolve(pool.execution[i](x, i, pool.setup)).then(_ => fn(++i))
+
         return fn(0)
     }
     stop() {
@@ -946,13 +965,13 @@ class pool {
     }
     constructor(x) {
         this.execution = [];
-        this.setup = {};
+        this.setup = { args: [] };
         this.add(x)
     }
-}
+};
 
 class swipe {
-    constructor(el,len=10) {
+    constructor(el,len=40) {
         this.len = len;
         this.x = null;
         this.y = null;
@@ -962,6 +981,10 @@ class swipe {
             this.x = v.touches[0].clientX;
             this.y = v.touches[0].clientY;
         }.bind(this));
+    }
+
+    static cast(e, l) {
+        return new Swipe(e, l)
     }
 
     left(fn) { this.__LEFT__ = new throttle(fn,this.len); return this }
@@ -982,18 +1005,18 @@ class swipe {
         this.xdir = diff(this.x,X);
         this.ydir = diff(this.y,Y);
 
-        if(Math.abs(this.xdir) > Math.abs(this.ydir)) { // Most significant.
-            if(this.__LEFT__ && this.xdir > 0) this.__LEFT__.fire();
+        if(Math.abs(this.xdir)>Math.abs(this.ydir)) { // Most significant.
+            if(this.__LEFT__&&this.xdir>0) this.__LEFT__.fire();
             else if(this.__RIGHT__) this.__RIGHT__.fire();
         }else{
-            if(this.__UP__ && this.ydir > 0) this.__UP__.fire();
+            if(this.__UP__&&this.ydir>0) this.__UP__.fire();
             else if(this.__DOWN__) this.__DOWN__.fire()
         }
         this.x = this.y = null
     }
 
-    fire() { this.e && this.e.on('touchmove', function(v) { this.move(v) }.bind(this)) }
-}
+    fire() { this.e&&this.e.on('touchmove', function(v) { this.move(v) }.bind(this)) }
+};
 
 /*
  * @class
@@ -1049,22 +1072,22 @@ class throttle {
             this.timer = now;
         }
     }
-}
+};
 
-class loader {
+class Loader {
 
     loadLength() {
-        return Object.values(this.loaders).filter(i => i).length / Object.keys(this.loaders).length
+        return Object.values(this.Loaders).filter(i => i).length / Object.keys(this.Loaders).length
     }
 
     check(scr) {
-        return scr ? this.loaders[scr] : this.alreadyLoaded
+        return scr ? this.Loaders[scr] : this.alreadyLoaded
     }
 
     ready(scr) {
         const tmp = this ;;
-        this.dependencies.forEach(x => tmp.loaders[x] = tmp.loaders[x]*1 ? 1 : 0)
-        if (scr!=null&&scr!=undefined) this.loaders[scr] = 1;
+        this.dependencies.forEach(x => tmp.Loaders[x] = tmp.Loaders[x]*1 ? 1 : 0)
+        if (scr!=null&&scr!=undefined) this.Loaders[scr] = 1;
 
         let perc = this.loadLength();
 
@@ -1087,12 +1110,12 @@ class loader {
         this.onReadyStateChange = new pool();
         this.onFinishLoading = new pool();
         this.dependencies = new Set(dependencies || ["pass"]);
-        this.loaders = {};
+        this.Loaders = {};
     }
 
-}
+};
 
-class call_response {
+class CallResponse {
     constructor(url = location.href, args = {}, method = "POST", header = {}, data = null) {
         this.url = url;
         this.args = args;
@@ -1101,19 +1124,19 @@ class call_response {
         this.data = data;
         this.status = this.data ? true : false;
     }
-}
+};
 
-class fobject extends Object {
+class FObject extends Object {
 
     static cast(o){
-        return new fobject(o)
+        return new FObject(o)
     }
 
     isNull(){
         return Object.values(this).length && true
     }
     static isNull(o){
-        return fobject.cast(o).isNull()
+        return FObject.cast(o).isNull()
     }
 
     map(fn){
@@ -1122,7 +1145,7 @@ class fobject extends Object {
         return res
     }
     static map(o, fn){
-        return fobject.cast(o).map(fn)
+        return FObject.cast(o).map(fn)
     }
 
     json(){
@@ -1141,7 +1164,7 @@ class fobject extends Object {
         return this.isNull() ? null : {...this}
     }
     static spread(o){
-        return fobject.cast(o).spread()
+        return FObject.cast(o).spread()
     }
 
     constructor(o){
@@ -1261,11 +1284,11 @@ class fw {
             req = await fetch(url, args ? {
                 method
                 , headers : new Headers(head)
-                , body    : fobject.json(blend(args || {}, { _ts: fdate.time() }))
+                , body    : FObject.json(blend(args || {}, { _ts: FDate.time() }))
             } : { method, headers: new Headers(head) })
             , res = await req.text()
             ;;
-            return new call_response(url, args, method, req, res);
+            return new CallResponse(url, args, method, req, res);
     } catch(e) {
             console.log({ err: e, url, args, head })
         }
@@ -1278,40 +1301,30 @@ class fw {
     static async load(url, args = null, target = null, bind = null) {
         return fw.call(url, args).then(r => {
             if (!r.status) return fw.error("error loading " + url);
-            r = r.data.prepare(blend({ UID: fw.nuid() }, fw.pallete, bind)).morph()
+            r = r.data.prepare(bind).morph()
             if (!target) target = $('#app')[0];
-            const head = $('head')[0] ;;
-            Array.from(r).forEach(e => {
-                if(e.tagName == "SCRIPT" || e.tagName == "STYLE") {
-                    head.app(e)
-                    if(e.tagName == "SCRIPT") eval(e.innerHTML)
-                } else target.app(e)
-            })
+            r instanceof HTMLCollection ? r.array().each(e => { target.app(e); e.evalute() }) : target.app(r) && r.evalute();
             return r
         })
     }
 
     static async exec(url, args = null, prepare = null) {
-        const s = document.createElement('script') ;;
-        s.type = 'text/javascript'
-        s.src = url.indexOf(".js")+1 ? url : url + '.js'
-        document.getElementsByTagName('head')[0].appendChild(s)
-        // if(!fw.execs) fw.execs = {}
-        // else if(fw.execs[url]) return eval(fw.execs[url].prepare(prepare))(fw, args)
-        // const res = await this.call(`js/${url.indexOf('.js')+1 ? url : url+'.js'}`) ;;
-        // if(!res.status) return this.error("error loading " + url)
-        // fw.execs[url] = res.data
-        // return eval(fw.execs[url].prepare(prepare))(fw, args)
+        if(!fw.execs) fw.execs = {}
+        else if(fw.execs[url]) return eval(fw.execs[url].prepare(prepare))
+        const res = await this.call(`js/${url.indexOf('.js')+1 ? url : url+'.js'}`) ;;
+        if(!res.status) return this.error("error loading " + url)
+        fw.execs[url] = res.data
+        return eval(fw.execs[url].prepare(prepare))
     }
 
-    static uuid() {
-        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    static uuid(pre='f') {
+        return ((pre||'x')+'xxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx').replace(/[xy]/g, function(c) {
           var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
           return v.toString(16);
         })
     }
 
-    static nuid(n = 32, prefix = "f") {
+    static nuid(n = 36, prefix = "f") {
         let a = prefix + "";
         n -= a.length;
         const keyspace = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".split('')
@@ -1406,7 +1419,7 @@ class fw {
             x.anime({ transform: "translateY(" + ht + "px)", opacity: 1 }, ANIMATION_LENGTH / 4)
             ht += x.getBoundingClientRect().height + 8;
         });
-        toast.dataset.delay = setTimeout(function () { toast.desappear(ANIMATION_LENGTH, true); }, ANIMATION_LENGTH * 5);
+        toast.dataset.delay = setTimeout(function () { toast.desappear(ANIMATION_LENGTH / 2, true); }, ANIMATION_LENGTH * 5);
         return toast
     }
 
@@ -1423,31 +1436,14 @@ class fw {
         return fw.notify(message || "Hooray! Success!", [fw.color().PETER_RIVER, fw.color().WHITE])
     }
 
-    static confirm(args={}) {
-        // html = null, title = null, css = {})
-        const w = fw.dialog(DIV('-wrapper').app(
-            TAG('p', '-row -content-left', null, args.message || "???")
-        ).app(
-            DIV('-row -flex').app(
-                DIV('-col-6', { padding:'1em .5m 1em 1em' }).app(
-                    DIV('-pointer -wrapper', { background: fw.pallete.ALIZARIN, color:'white' }).text('NÃO').on('click', args.no ? args.no : _=>_)
-                )
-            ).app(
-                DIV('-col-6', { padding:'1em 1em 1em .5em' }).app(
-                    DIV('-pointer -wrapper', { background: fw.pallete.GREEN_SEA, color:'white' }).text('SIM').on('click', args.ok ? args.ok : _=>_)
-                )
-            )
-        ),args.title || "?")
-    }
-
     //static hintify(n = null, o = {}, delall = true, keep = false, special = false, evenSpecial = false) {
     static hintify(opts={}) {
 
         if (opts.delall) $(".--hintifyied" + (opts.special ? ", .--hintifyied-sp" : "")).forEach(x => x.desappear(ANIMATION_LENGTH, true));
 
         opts.css = blend({
-            top: Math.min(window.innerHeight * .95, maxis.y) + "px"
-            , left: Math.min(window.innerWidth * .8, maxis.x) + "px"
+            top: Math.min(window.innerHeight * .95, maxis.clientY) + "px"
+            , left: Math.min(window.innerWidth * .8, maxis.clientX) + "px"
             , boxShadow: "0 0 2em " + fw.color("DARK4")
             , padding:".5em"
             , borderRadius: ".25em"
@@ -1475,10 +1471,11 @@ class fw {
         return toast
     }
 
-    static window(html = null, title = null, css = {}) {
+    static window(html, title, css = {}) {
         const
-        head = TAG("header", "-relative -row -zero --window-header -no-scrolls").app(
-            DIV("-left -content-left -ellipsis --drag-trigger", { cursor: 'all-scroll', minHeight: "3em", lineHeight: 3, width: "calc(100% - 9em)", fontWeight: 500 }).app(
+        mob = fw.is_mobile()
+        , head = TAG("header", "-relative -row -zero --window-header -no-scrolls").app(
+            DIV("-left -content-left -ellipsis --drag-trigger", { cursor: 'all-scroll', minHeight: "3em", lineHeight: 3, width: "calc(100% - 6em)" }).app(
                 typeof title == "string" ? ("<span class='-row -no-scrolls' style='height:3em;padding:0 1em;opacity:.75'>" + title + "</span>").morph()[0] : title
             ).on("click", function () { this.upFind("--window").raise() })
         ).app(
@@ -1486,17 +1483,15 @@ class fw {
             DIV("-right -pointer --close -tile").app(
                 IMG("assets/img/icons/cross.svg", fw.pallete.type == "dark" ? "-inverted" : null, { height: "2.75em", width: "2.75em", padding: ".75em" })
             ).on("click", function () {
-                this.upFind("--window").desappear(AL, true)
-                setTimeout(_null => $(".--minimized").forEach((el, i) => { el.anime({ left: (10 + (i * 13.3)) + 'vw' }) }), AL)
+                this.upFind("--window").remove()
+                $(".--minimized").forEach((el, i) => { el.anime({ left: (6.75+(i*13.3)) + 'vw' }) })
             })
         ).app(
             // MINIMIZE
-            DIV("-right -pointer --minimize -tile").app(
+            mob ? DIV() : DIV("-right -pointer --minimize -tile").app(
                 IMG("assets/img/icons/minimize.svg", fw.pallete.type == "dark" ? "-inverted" : null, { height: "2.75em", width: "2.75em", padding: ".75em" })
             ).on("click", function () {
-                const
-                    win = this.upFind("--window")
-                    ;;
+                const win = this.upFind("--window") ;;
                 if (win.has("--minimized")) {
                     const pos = win.dataset.position.json() ;;
                     this.anime({ transform: "rotate(0deg)" });
@@ -1504,7 +1499,7 @@ class fw {
                     win.anime({ height: pos.h + "px", width: pos.w + "px", top: pos.y + "px", left: pos.x + "px", transform: "translate(-50%, -50%)" });
                     win.remClass("--minimized");
                 } else {
-                    win.dataset.position = fobject.json({
+                    win.dataset.position = FObject.json({
                         w: win.offsetWidth
                         , h: win.offsetHeight
                         , x: win.offsetLeft
@@ -1515,50 +1510,56 @@ class fw {
                     win.anime({ height: "3em", width: "13.3vw", top: "calc(100vh - 1.5em)", left: "6.75vw" });
                     win.addClass("--minimized");
                 }
-                $(".--minimized").forEach((el, i) => { el.anime({ left: (6.75 + (i * 13.3)) + 'vw' }) })
+                $(".--minimized").each((el, i) => { el.anime({ left: (6.75 + (i * 13.3)) + 'vw' }) })
 
             })
         )
-        , wrapper = DIV("-zero -wrapper", { height: "calc(100% - 3em)" })
-        , _W = DIV("--window -fixed -no-scrolls --drag-target -centered", blend({
-            height: "70vh"
-            , width: "70vw"
-            , background: fw.color("BACKGROUND")
+        , wrapper = DIV("-zero -wrapper -no-scrolls", { height: "calc(100% - 3em)" })
+        , _W = DIV("--window -fixed -no-scrolls --drag-target -centered -blur", blend({
+            height: mob ? "100vh" : "70vh"
+            , width: mob ? "100vw" : "70vw"
+            , background: fw.pallete.FOREGROUND + "AA"
             , border: "none"
             , borderRadius: ".5em"
-            , boxShadow: "0 0 12em black"
+            , boxShadow: "0 0 1em black"
             , color: fw.color("FONT")
             , zIndex: 8000
-            , resize: "both"
+            , resize: mob ? "none" : "both"
             , padding: "0"
         }, css)).data({ state: "default" })
+        , uuid = fw.uuid()
         ;;
 
-        if (html) wrapper.app(typeof html == "string" ? html.prepare(app.pallete).morph() : html);
+        _W.id = uuid
+
+        if (html) wrapper.app(typeof html == "string" ? html.prepare({uuid}).morph() : html);
 
         $("#app")[0].app(_W.app(head).app(wrapper));
 
         this.tileClickEffectSelector(".-tile");
 
-        wrapper.evalute();
-        fw.sleep(ANIMATION_LENGTH).then(NULL => _W.raise());
-
         fw.enableDragging();
+
+        _W.raise()
+
+        _W.evalute()
 
         return _W;
 
     }
 
     static dialog(html = null, title = null, css = {}) {
+        const mob = fw.is_mobile() ;;
         return fw.window(html, title, blend({
-            height: "40vh"
-            , width: "24vw"
-            , top: "50%"
-            , left: "50%"
+            height: mob ? "90vh" : "40vh"
+            , width: mob ? "90vw" : "24vw"
+            , top: mob ? "5vh" : "50%"
+            , left: mob ? "5vw" : "50%"
             , background: fw.pallete.BACKGROUND
-            , borderRadius: ".25em"
+            , borderRadius: ".5em"
             , boxShadow: "0 0 2em " + fw.pallete.DARK4
             , color: fw.pallete.FONT
+            , transform: mob ? 'translate(0, 0)' : 'translate(-50%, -50%)'
         }, css))
         ;;
     }
@@ -1602,7 +1603,7 @@ class fw {
                 document.cookie = field+"="+value+"; expires="+date.toGMTString()+"; path=/";
             }else{
                 field += "=";
-                document.cookie.split(';').forEach(c => {
+                document.cookie.split(';').each(c => {
                     while (c.charAt(0)==' ') c = c.substring(1,c.length);
                     if(c.indexOf(field)==0) value = c.substring(field.length,c.length);
                 });
@@ -1672,7 +1673,7 @@ class fw {
         let
         hex = "#";
         if(!Array.isArray(color)) color = color.split(/[\s+,.-]/g);
-        color.slice(0,3).forEach(clr => {
+        color.slice(0,3).each(clr => {
             let
             tmp = (clr*1).toString(16);
             hex += tmp.length == 1 ? "0" + tmp : tmp
@@ -1718,7 +1719,7 @@ class fw {
 
     static enableDragging() {
 
-        $(".--drag-trigger, .--drag").forEach((x, i) => {
+        $(".--drag-trigger, .--drag").each((x, i) => {
 
             if (x.has(".--drag-enabled")) return;
 
@@ -1759,7 +1760,7 @@ class fw {
 
     static tileClickEffectSelector(cls = null, clr = null) {
         if (!cls) return;
-        $(cls).forEach((x, i) => {
+        $(cls).each((x, i) => {
             if (!x.has("--effect-selector-attached")) {
                 x.addClass("-no-scrolls").on("click", function (e) {
                     if (this.classList.contains("-skip")) return;
@@ -1799,7 +1800,7 @@ class fw {
             )
             $("tooltip#tooltip").on("mouseleave", function(){ this.css({ display: "none" }) })
         }
-        $(".--tooltip").forEach(tip => {
+        $(".--tooltip").each(tip => {
             tip.on(EEvents.MOUSEENTER, function (e) {
                 if(!this.dataset.tip) return;
                 document.getElementById("tooltip").css({ display: 'none' }).html(this.dataset.tip == "@" ? this.textContent : this.dataset.tip).css({
@@ -1827,28 +1828,37 @@ class fw {
         // return wrapper && wrapper[0] == '#' ? t[0] : t
         return t
     }
-}
+
+};
 
 const
-initpool     = new pool()
-, $          = fw.$
-, bootloader = new loader()
-, app        = fw
-, maxis      = { x:0, y:0 }
-;;
-
-async function GET(url, callback, args, head){
+maxis = { x: 0, y: 0 }
+, initpool = new pool()
+, $ = fw.$
+, bootloader = new Loader()
+, App = fw
+, include = (path, args) => {
+    if($('#scr-'+path.hash()).length) return
+    const s = document.createElement('script') ;;
+    s.id = `scr-${path.hash()}`
+    s.type = 'text/javascript'
+    s.src = path.indexOf(".js") + 1 ? path : path + '.js'
+    s.args = args || {}
+    document.getElementsByTagName('head')[0].appendChild(s)
+}
+, GET = async (url, callback, args, head) => {
     var res = await fw.call(url + (args ? `?${new URLSearchParams(args).toString()}` : ''), null, 'GET', head) ;;
     try { res = JSON.parse(res.data) } catch(e) { res = res.data }
     return callback ? callback(res) : res
 }
-
-async function POST(url, args, callback, head) {
+, POST = async (url, args, callback, head) => {
     var res = await fw.call(url, args, 'POST', head) ;;
     try { res = JSON.parse(res.data) } catch(e) { res = res.data }
     return callback ? callback(res) : res
 }
+;;
 
+window.onmousemove = e => window.maxis = e
 window.oncontextmenu = e => {
     let trigger, evs = [] ;;
     if(e.path) e.path.forEach(e => {
@@ -1877,5 +1887,4 @@ window.oncontextmenu = e => {
 
 document.addEventListener("touchstart", function() {}, true);
 
-// console.log('  __\n\ / _| __ _  __ _ _   _\n\| |_ / _` |/ _` | | | |\n\|  _| (_| | (_| | |_| |\n\|_|  \\__,_|\\__,_|\\__,_|')
-console.log("\n ___ _ __  _   _ _ __ ___   ___\n/ __| '_ \\| | | | '_ ` _ \\ / _ \\\n\\__ \\ |_) | |_| | | | | | |  __/\n|___/ .__/ \\__,_|_| |_| |_|\\___|\n    |_|\n")
+console.log(`  ____ _     ___   __  __  ___  ____  _____\n / ___| |   |_ _| |  \\/  |/ _ \\|  _ \\| ____|\n| |   | |    | |  | |\\/| | | | | | | |  _|\n| |___| |___ | |  | |  | | |_| | |_| | |___\n \\____|_____|___| |_|  |_|\\___/|____/|_____|\n\n`);

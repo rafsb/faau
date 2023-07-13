@@ -53,13 +53,13 @@ class FGraph {
             , xpace = o.rects.width / xdots
             ;;
             // Y Guides
-            !o.noxguides && app.iterate(0, xdots, i => {
+            !o.noxguides && fw.iterate(0, xdots, i => {
                 o.node.app(
                     SVG("path", "--guide --x", { d: [ "M", [ i * xpace, 0 ], "V", rects.height ].join(" ") }, { stroke: o.strokeColor, strokeWidth: o.strokeWidth })
                 )
             });
             // X Guides
-            !o.noyguides&&app.iterate(0, ydots, i => {
+            !o.noyguides&&fw.iterate(0, ydots, i => {
                 node.app(
                     SVG("path", "--guide --y", { d: [ "M", [ 0, i * ypace ], "H", rects.width ].join(" ") }, { stroke: o.strokeColor, strokeWidth: o.strokeWidth })
                 )
@@ -223,7 +223,7 @@ class FGraph {
             if(o.type == EChartTypes.GROUPED_BAR){
                 o.node.app(
                     SVG("rect", "-hint-plate -pointer --tooltip", { width: o.rects.width, height: o.rects.height, x: 0, y: 0 }, {
-                        fill: app.color("FONT") + '44'
+                        fill: fw.color("FONT") + '44'
                         , opacity: 0
                     }).data({ emitter: 'all', tip: o.dataset.extract((set, j) => {
                         return set.status && set.plot ?
@@ -238,7 +238,7 @@ class FGraph {
                 xmax = o.colls ? o.colls : o.dataset.extract((set, i) => set.plot.calc(MAX) || 1).calc(MAX)
                 , xpace = o.rects.width / xmax
                 ;;
-                app.iterate(0, xmax, i => {
+                fw.iterate(0, xmax, i => {
                     const
                     plate = $(".-hint-plate", o.node)[i]
                     , x = parseInt(i * xpace)
@@ -250,7 +250,7 @@ class FGraph {
                             , x: x
                             , y: 0
                         }, {
-                            fill: app.color("FONT") + '44'
+                            fill: fw.color("FONT") + '44'
                             , opacity: 0
                         }).data({ emitter: i, tip: o.dataset.extract((set, j) => {
                             return set.status && set.plot ?
@@ -272,18 +272,18 @@ class FGraph {
             }
 
             o.target.get('.-hint-plate').each((e, i) => e.raise())
-            app.tooltips();
+            fw.tooltips();
         }
     }
 
     constructor(o) {
         o.target = (o.target || $("#app")[0]).css({ overflow: 'hidden' }).empty()
         o.rects  = o.target.getBoundingClientRect()
-        o.css    = binds({ background: app.color("BACKGROUND") }, o.css || {})
+        o.css    = binds({ background: fw.color("BACKGROUND") }, o.css || {})
         o.type   = o.type || EChartTypes.SMOOTH
         o.colls  = o.colls || (o.dataset ? o.dataset.extract((x, i) => x.plot ? x.plot.length || 1 : 1).calc(MAX) : 12)
         o.roof   = o.roof || 1.1
-        o.fsize  = app.em2px()
+        o.fsize  = fw.em2px()
         o.node   = SVG("svg", "-absolute -zero", binds({
             height: o.rects.height
             , width: o.rects.width
@@ -292,7 +292,7 @@ class FGraph {
 
         o.target.app(o.node)
 
-        const base = { color: app.pallete.FONT+"AA", strokeColor: app.pallete.FONT+"22", strokeWidth: 2} ;;
+        const base = { color: fw.pallete.FONT+"AA", strokeColor: fw.pallete.FONT+"22", strokeWidth: 2} ;;
         if(!o.noaxis) o.axis(binds(base, o.axis || {}));
         if(!o.noguides) o.guides(binds(base, o.guides || {}));
 

@@ -28,9 +28,9 @@ module.exports = class fLoader {
     }
     constructor(dependencies){
         this.alreadyLoaded      = false;
-        this.loadComponents     = new fPool();
-        this.onReadyStateChange = new fPool();
-        this.onFinishLoading    = new fPool();
+        this.loadComponents     = new fpool();
+        this.onReadyStateChange = new fpool();
+        this.onFinishLoading    = new fpool();
         this.dependencies       = fArray.instance(dependencies || [ "pass" ]);
         this.loaders            = new fObject();
     }

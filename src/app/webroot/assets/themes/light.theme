@@ -1,7 +1,7 @@
 {
     "FOREGROUND"    : "#FFFFFF"
     , "BACKGROUND"  : "#D3D3D3"
-    , "FONT"        : "#000000"
+    , "FONT"        : "#2D3E4F"
     , "FONTBLURED"  : "#BEBCBD"
     , "SPAN"        : "#D15419"
     , "DISABLED"    : "#BDC3C8"

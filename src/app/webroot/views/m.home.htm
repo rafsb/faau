@@ -1,0 +1,18 @@
+<template>
+
+    <!-- HOME -->
+    <div class='-wrapper -no-scrolls' style="background-image: linear-gradient(to top right, {{background}}, {{foreground}});">
+        <img src="assets/img/face.png" class="-fixed -zero-bottom-right -row" style="max-height:100vh;max-width:100vw;opacity:.08">
+        <header id='head' class="-fixed -zero -row" style="height: 4em;"></header>
+        <main id="stage" class="-fixed -zero -row -no-scrolls -roboto-light" style="height:calc(100vh - 9em);top:4em"></main>
+    </div>
+
+    <!-- SCRIPT -->
+    <script>
+        (async _ => {
+            fw.load(`components/${fw.is_mobile() ? 'm.' : ''}header.htm`, null, $('header#head')[0])
+            bootloader.ready('home')
+        })()
+    </script>
+
+</template>

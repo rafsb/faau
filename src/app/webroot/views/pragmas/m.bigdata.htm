@@ -10,7 +10,7 @@
 
         <div class="-relative -row -scrolls -bar --text-stage">
 
-            <div class="-col-8 -content-left" style="padding-top: 4em;">
+            <div class="-col-8 -content-left" style="padding: 4em 2em;">
 
                 <span class="-row -content-left" style="font-size: 2em;">Bigdata</span>
                 <div class="-row"><div class="-col-1 -left" style="border-bottom: 1px solid {{dark3}};"></div></div>
@@ -39,14 +39,14 @@
                 <p>O Big Data apresenta desafios e oportunidades únicas para as organizações. Os frameworks e tecnologias mencionados acima fornecem as ferramentas necessárias para armazenar, processar e extrair insights valiosos de grandes volumes de dados. À medida que a quantidade de dados continua a crescer, essas tecnologias se tornam ainda mais essenciais para impulsionar a inovação, a tomada de decisões informadas e o desenvolvimento de soluções inteligentes em diversas áreas, desde a análise de mercado até a medicina de precisão. Portanto, se você deseja desvendar os segredos ocultos em seus dados, não deixe de entrar em contato comigo, já!</p>
 
                 <div class="-row -content-center" style="padding:4em 0;opacity:.32">
-                    <img class="-col-4 -pointer" src="logos/arrow.svg" onclick="window.app.pragma = window.app.current_pragma + 1">
+                    <img class="-col-10 -pointer" src="logos/arrow.svg" onclick="{ fw.pragma = fw.current_pragma + 1 }">
                 </div>
 
             </div>
 
         </div>
 
-        <div class="-fixed -zero-bottom -row -content-center -avoid-pointer" style="height:6em;">
+        <div class="-fixed -zero-bottom -row -content-center -avoid-pointer --shadow" style="height:6em;">
             <div class="-col-8" style="height:1em;transform: translateY(6em); box-shadow: 0 0 4em black;bottom:0"></div>
         </div>
 
@@ -55,18 +55,17 @@
     <script>
         (function(){
             const
-            shadow = $('#bigdata .--shadow')[0]
+            shadow = $('#bigdata .--shadow')
             , scrollev = new throttle(e => {
-                const { scrollTop } = e.target ;;
-                if(scrollTop > 10) shadow.stop().anime({ opacity: 1 })
-                else shadow.stop().anime({ opacity: 0 })
+                const { scrollTop, offsetHeight, scrollHeight } = e.target, padd = fw.em2px() * 4 ;;
+                if(scrollTop > padd) {
+                    shadow[0].stop().anime({ opacity: 1 })
+                    if(offsetHeight+scrollTop > scrollHeight - padd) shadow[1].stop().anime({ opacity: 0 })
+                    else shadow[1].stop().anime({ opacity: 1 })
+                } else shadow[0].stop().anime({ opacity: 0 })
             }, 32)
             ;;
-            $('#bigdata .--text-stage')[0].on('scroll', e => scrollev.fire(e))
-
-            // $('#app')[0].app(IMG("bg/bigdata.png", "-fixed -zero-top-right --big-picture -bar -avoid-pointer", { opacity:0, top:'2em' }))
-            // setTimeout(_ => $('.--big-picture')[0].anime({ opacity:.08, top:0 }, AL), 256)
-
+            $('.--text-stage')[0].on('scroll', e => scrollev.fire(e))
         })()
     </script>
 </template>

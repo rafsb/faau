@@ -8,7 +8,7 @@
         </div>
 
         <div class="-row -bar -scrolls --text-stage">
-            <div class="-col-8 -content-left" style="padding-top: 4em;">
+            <div class="-col-8 -content-left" style="padding: 4em 2em;">
 
                 <span class="-row -content-left" style="font-size: 2em;">Desenvolvimento de soluções digitais</span>
                 <div class="-row"><div class="-col-1 -left" style="border-bottom: 1px solid {{dark3}};"></div></div>
@@ -45,7 +45,7 @@
                 <p>Se você está buscando um parceiro confiável para desenvolver softwares, websites e soluções digitais sob medida, estou pronto para ajudar. Com expertise, inovação e compromisso com a qualidade, podemos impulsionar o seu negócio para o sucesso no mundo digital em constante evolução. Entre em contato para transformarmos suas ideias em realidade! ou simplesmente para tomarmos um café mesmo, isso também faz a vida fluir bem!</p>
 
                 <div class="-row -content-center" style="padding:4em 0;opacity:.32">
-                    <img class="-col-4 -pointer" src="logos/arrow.svg" onclick="window.app.pragma = window.app.current_pragma + 1">
+                    <img class="-col-10 -pointer" src="logos/arrow.svg" onclick="{ fw.pragma = fw.current_pragma + 1 }">
                 </div>
 
             </div>
@@ -61,18 +61,19 @@
     <script>
         (function(){
             const
-            shadow = $('#dev .--shadow')[0]
+            shadow = $('#gpt .--shadow')
             , scrollev = new throttle(e => {
-                const { scrollTop } = e.target ;;
-                if(scrollTop > 10) shadow.stop().anime({ opacity: 1 })
-                else shadow.stop().anime({ opacity: 0 })
+                const { scrollTop, offsetHeight, scrollHeight } = e.target, padd = fw.em2px() * 4 ;;
+                if(scrollTop > padd) {
+                    shadow[0].stop().anime({ opacity: 1 })
+                    if(offsetHeight+scrollTop > scrollHeight - padd) shadow[1].stop().anime({ opacity: 0 })
+                    else shadow[1].stop().anime({ opacity: 1 })
+                } else shadow[0].stop().anime({ opacity: 0 })
             }, 32)
             ;;
-            $('#dev .--text-stage')[0].on('scroll', e => scrollev.fire(e))
-
-            // $('#app')[0].app(IMG("bg/dev.png", "-fixed -zero-top-right --big-picture -bar -avoid-pointer", { opacity:0, top:'2em' }))
-            // setTimeout(_ => $('.--big-picture')[0].anime({ opacity:.08, top:0 }, AL), 256)
+            $('.--text-stage')[0].on('scroll', e => scrollev.fire(e))
         })()
+
     </script>
 
 </template>

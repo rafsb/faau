@@ -1,0 +1,61 @@
+<template>
+
+    <div class="-relative -row -content-center" style="padding:1em 0">
+        <div class="-fixed -zero -pointer" style="padding:1.25em" onclick="fw.pragma = EPragmas.WELCOME">
+            <img src="icons/home.svg" style="height:1.5em;width:1.5em;opacity:.32">
+        </div>
+        <img src="assets/img/logos/brand.png" style="height:2em">
+        <div class="-fixed -zero-top-right -pointer" style="padding:1.25em" onclick="fw.pragma = EPragmas.CONTACT">
+            <img src="icons/whatsapp.svg" style="height:1.5em;width:1.5em;opacity:.32">
+        </div>
+    </div>
+
+    <footer id='menu' class="-fixed -zero-bottom-left -row" style="text-transform:uppercase;height:5em;;">
+        <nav class="-relative -wrapper" style="background:{{font}}">
+            <i class="-absolute -zero-bottom" style="bottom:.75em;height: 0;width:0;border:.5em solid transparent;border-right-color:{{background}};opacity:.32"></i>
+            <nav class="-centered -row -content-center" style="max-width:600px;top:calc(50% + .75em + .125em);padding:0 1.5em;">
+                <div class="-pointer"><span class="-fixed -row -avoid-pointer -content-left -ellipsis">welcome</span></div>
+                <div class="-pointer"><span class="-fixed -row -avoid-pointer -content-left -ellipsis">i. a</span>.</div>
+                <div class="-pointer"><span class="-fixed -row -avoid-pointer -content-left -ellipsis">bigdata</span></div>
+                <div class="-pointer"><span class="-fixed -row -avoid-pointer -content-left -ellipsis">gpt</span></div>
+                <div class="-pointer"><span class="-fixed -row -avoid-pointer -content-left -ellipsis">consultoria</span></div>
+                <div class="-pointer"><span class="-fixed -row -avoid-pointer -content-left -ellipsis">desenvolvimento</span></div>
+                <div class="-pointer"><span class="-fixed -row -avoid-pointer -content-left -ellipsis">contato</span></div>
+            </nav>
+            <i class="-absolute -zero-bottom-right" style="bottom:.75em;height: 0;width:0;border:.5em solid transparent;border-left-color:{{background}};opacity:.32"></i>
+        </nav>
+    </footer>
+
+    <style>
+        footer#menu  div {
+            height:.5em;
+            width:2em;
+            border-radius: .25em;
+            background: {{background}};
+        }
+        footer#menu  div > span {
+            left:0;
+            bottom: .75em;
+            display:none;
+            width:100vw;
+            font-size: 1.5em;
+            padding:0 1em;
+            color:{{background}};
+        }
+    </style>
+
+    <script>
+        bootloader.onFinishLoading.add(_ => $('footer#menu div').forEach((e, i) => e.on('click', _ => fw.pragma = i)))
+        fw.onPragmaChange.add(pragma => {
+            $('footer#menu div').forEach((e, i) => {
+                if(i == pragma) {
+                    e.stop().anime({ opacity: 1, width: 'calc(100% - 14em)' })
+                    e.$('span')[0].show()
+                } else {
+                    e.stop().anime({ opacity: .32, width:'2em' })
+                    e.$('span')[0].hide()
+                }
+            })
+        })
+    </script>
+</template>

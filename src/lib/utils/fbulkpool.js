@@ -1,10 +1,10 @@
-module.exports = class FBulkPool extends fObject {
+module.exports = class FBulkpool extends fObject {
 
     grant(){ this.add() }
 
     add(art){
 
-        if(!this._ClassType) return Fail('FBulkPool', 'add', 'Items classtype not defined!');
+        if(!this._ClassType) return Fail('FBulkpool', 'add', 'Items classtype not defined!');
 
         const
         me = this
@@ -15,7 +15,7 @@ module.exports = class FBulkPool extends fObject {
         if(me._Arr.length >= DB_CHUNK_SIZE) {
             const tmp_arr = me._Arr.splice(0, DB_CHUNK_SIZE) ;;
             me._ClassType.bulk(tmp_arr).then(_ => {
-                if(VERBOSE>3) out(`FBookPool<${name}>`, `save`, `${tmp_arr.length}x at ${fDate.cast()}`, ETerminalColors.FT_CYAN)
+                if(VERBOSE>3) out(`FBookpool<${name}>`, `save`, `${tmp_arr.length}x at ${fDate.cast()}`, ETerminalColors.FT_CYAN)
                 if(me._Arr.length) return me.grant()
             })
         }
@@ -23,7 +23,7 @@ module.exports = class FBulkPool extends fObject {
             if(me._Arr.length) {
                 const tmp_arr = me._Arr.splice(0, DB_CHUNK_SIZE) ;;
                 await this._ClassType.bulk(tmp_arr);
-                if(VERBOSE>3) out(`FBookPool<${name}>`, `save`, `FORCED! ${tmp_arr.length}x at ${fDate.cast()}`, ETerminalColors.FT_MAGENTA)
+                if(VERBOSE>3) out(`FBookpool<${name}>`, `save`, `FORCED! ${tmp_arr.length}x at ${fDate.cast()}`, ETerminalColors.FT_MAGENTA)
                 if(me._Arr.length) me.grant()
             }
         }, 10000);
