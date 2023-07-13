@@ -25,7 +25,7 @@ window.ELocales = Object.freeze({
 
 const
 wsport = location.port
-, ws = new WebSocket('ws://' + location.hostname + ':' + wsport)
+, ws = new WebSocket('ws'+(location.protocol == "https:" ? 's' : '')+'://' + location.hostname + ':' + wsport)
 , socket_callbacks = { }
 , sock_sender = async req => {
     if(ws.readyState === 1) ws.send(req)
