@@ -12,8 +12,7 @@
 
     <footer id='menu' class="-fixed -zero-bottom-left -row" style="text-transform:uppercase;height:5em;;">
         <nav class="-relative -wrapper" style="background:{{font}}">
-            <i class="-absolute -zero-bottom" style="bottom:.75em;height: 0;width:0;border:.5em solid transparent;border-right-color:{{background}};opacity:.32"></i>
-            <nav class="-centered -row -content-center" style="max-width:600px;top:calc(50% + .75em + .125em);padding:0 1.5em;">
+            <nav class="-centered -row -content-center" style="max-width:600px;top:calc(50% + .75em + .125em);padding:0 3em;">
                 <div class="-pointer"><span class="-fixed -row -avoid-pointer -content-left -ellipsis">welcome</span></div>
                 <div class="-pointer"><span class="-fixed -row -avoid-pointer -content-left -ellipsis">i. a</span>.</div>
                 <div class="-pointer"><span class="-fixed -row -avoid-pointer -content-left -ellipsis">bigdata</span></div>
@@ -22,7 +21,12 @@
                 <div class="-pointer"><span class="-fixed -row -avoid-pointer -content-left -ellipsis">desenvolvimento</span></div>
                 <div class="-pointer"><span class="-fixed -row -avoid-pointer -content-left -ellipsis">contato</span></div>
             </nav>
-            <i class="-absolute -zero-bottom-right" style="bottom:.75em;height: 0;width:0;border:.5em solid transparent;border-left-color:{{background}};opacity:.32"></i>
+            <nav class="-absolute -pointer -zero-bottom" style="bottom:1em;height:3em;width:2em;" onclick="fw.pragma = fw.current_pragma ? fw.current_pragma - 1 : Object.keys(EPragmas).length - 1">
+                <i class="-centered" style="height: 0;width:0;border:.5em solid transparent;border-right-color:{{background}};opacity:.32"></i>
+            </nav>
+            <nav class="-absolute -pointer -zero-bottom-right" style="bottom:1em;height:3em;width:2em;" onclick="fw.pragma = fw.current_pragma == Object.keys(EPragmas).length - 1 ? 0 : fw.current_pragma + 1">
+                <i class="-centered" style="height: 0;width:0;border:.5em solid transparent;border-left-color:{{background}};opacity:.32"></i>
+            </nqv>
         </nav>
     </footer>
 
@@ -34,12 +38,11 @@
             background: {{background}};
         }
         footer#menu  div > span {
-            left:0;
+            left:2em;
             bottom: .75em;
             display:none;
-            width:100vw;
+            width:calc(100vw - 6em);
             font-size: 1.5em;
-            padding:0 1em;
             color:{{background}};
         }
     </style>

@@ -36,11 +36,11 @@ window.EPragmas = Object.freeze({
  * after this execution queue and all bootloader`s
  * loaders are all done
  */
+bootloader.dependencies.add('home')
 bootloader.loadComponents.add(async _ => {
     /**
      * HOME
     */
-    bootloader.dependencies.add('home')
     fw.load((fw.is_mobile() ? 'm.' : '') + `home.htm`)
 })
 
@@ -110,3 +110,5 @@ $('#app')[0].on('mousemove', e => {
     maxis.x = e.clientX
     maxis.y = e.clientY
 })
+
+bootloader.loadComponents.fire()

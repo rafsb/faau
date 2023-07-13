@@ -11,7 +11,7 @@
 
                 if(bootloader.alreadyLoaded) return
 
-                svg.anime({ opacity:1 }, AL / 2)
+                svg.anime({ opacity: 1 }, AL / 2)
 
                 svg.$('ellipse').forEach(ell => ell.css({ opacity:0 }))
 
@@ -20,12 +20,13 @@
                     , "stroke-dasharray": path.getTotalLength()
                     , "stroke-dashoffset": path.getTotalLength()
                 }, path => path.anime({
-                    opacity:1
+                    opacity: 1
                     , "stroke-dashoffset":0
-                    , stroke:'{{midnight_blue}}'
-                }, AL, AL / 4 * i).then(path => path.has('st2') && path.anime({ "stroke-dasharray":'6,12' }, AL))))
+                }, AL, AL / 4 * i).then(path => path.has('st2') && path.anime({
+                    "stroke-dasharray":'6,12'
+                }, AL))))
 
-                svg.$('ellipse').forEach((ell, i) => setTimeout(_ => ell.anime({ opacity: 1 }, AL) , AL * i / 4))
+                svg.$('ellipse').forEach((ell, i) => setTimeout(_ => ell.anime({ opacity: 1 }, AL) , AL / 4 * i))
 
                 setTimeout(_ => {
                     bootloader.ready('splash')
@@ -40,7 +41,7 @@
             ;;
 
             GET("logos/logo.svg", logo => {
-                logo = logo.morph()[0].addClass('-fixed -zero-bottom-right').css({ height:'20%', margin:'4em' })
+                logo = logo.morph()[0].addClass('-fixed -centered').css({ width:'80%', opacity: 0 })
                 splash.app(logo)
                 logo.$('path, ellipse').forEach(e => e.anime({ opacity:0 }))
                 setTimeout(logo_animation, AL*2, logo)

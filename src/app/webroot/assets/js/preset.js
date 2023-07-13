@@ -84,7 +84,7 @@ bootloader.dependencies = new Set([
     /*** SPLASH ***/
     {
         bootloader.dependencies.add("splash")
-        await fw.load("views/splash.htm")
+        await fw.load("views/"+(fw.is_mobile() ? 'm.' : '')+"splash.htm")
     }
 
     /*** VERSION ***/
@@ -113,14 +113,12 @@ bootloader.dependencies = new Set([
                                     data: { theme: fw.theme }
                                     , cb: async res => {
                                         blend(fw.pallete, res)
-                                        bootloader.loadComponents.fire()
                                         bootloader.onFinishLoading.add(_ => [ "background", "foreground" ].forEach(i => $(`.--${i}`).anime({ background: fw.pallete[i.toUpperCase()] })))
                                         bootloader.ready('theme')
                                     }
                                 })
                             } catch(e) {
                                 fw.warning("Não foi possível carregar o tema escolhido, usaremos o padrão do sistema!")
-                                bootloader.loadComponents.fire()
                             }
                     //     } else fw.exec('login')
                     // } })
@@ -145,7 +143,7 @@ bootloader.dependencies = new Set([
         })
     }
 
-    setTimeout(_ => bootloader.ready("ready"), AL)
+    setTimeout(_ => bootloader.ready("ready"), AL * 2)
 
 })(window.app)
 
