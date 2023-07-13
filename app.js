@@ -65,15 +65,19 @@ app.keepAliveTimeout = 0
 // *                 server settings                   *
 // *---------------------------------------------------*
 try {
-    const https = require("https").createServer({key, cert}, app) ;;
-    https.listen(PORT)
-    require('./src/lib/fsocket')(https)
-    console.log(
-        ETerminalColors.BG_BLUE
-        + ETerminalColors.FT_WHITE
-        + ' >>> SERVER RUNNING ON PORT/SOCKET ' + PORT + ' at ' + fdate.as() + ' <<< '
-        + ETerminalColors.RESET
-    )
+    // const https = require("https").createServer({key, cert}, app) ;;
+    // https.listen(PORT)
+    // require('./src/lib/fsocket')(https)
+    const http = require("http").createServer(app) // {key, cert}, app) ;;
+    require('./src/lib/fsocket')(http)
+    http.listen(PORT, _ => {
+        console.log(
+            ETerminalColors.BG_BLUE
+            + ETerminalColors.FT_WHITE
+            + ' >>> SERVER RUNNING ON PORT/SOCKET' + http.address().port + ' at ' + fdate.as() + ' <<< '
+            + ETerminalColors.RESET
+        )
+    })
 } catch (e) {
     console.error(`error`, `server`, `create`)
     if(VERBOSE>2) console.trace(e)
