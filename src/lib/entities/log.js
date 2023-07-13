@@ -6,7 +6,7 @@ const
 md5      = require('md5')
 , fw     = require('../fw')
 , io     = require('../utils/fio')
-, FDate  = require('../utils/fdate')
+, fdate  = require('../utils/fdate')
 , Entity = require('../interfaces/entity')
 ;;
 
@@ -62,7 +62,7 @@ class Log extends Entity {
     }
 
     constructor(obj){
-        const date = new FDate() ;;
+        const date = new fdate() ;;
         super(fw.blend({
             id              : md5(date.time())
             , worker_       : `System`
@@ -74,7 +74,7 @@ class Log extends Entity {
     }
 
     static once(worker_='Log', task_='once', type_='info', data_='', clr=ETerminalColors.FT_CYAN, vlevel=4, user_=null) {
-        if(VERBOSE_PERSISTANCE_IO) io.write(`var/logs/${worker_}.log`, `${FDate.as()} ${task_} -> ${type_}\n${data_}\n\n`, EIO.APPEND)
+        if(VERBOSE_PERSISTANCE_IO) io.write(`var/logs/${worker_}.log`, `${fdate.as()} ${task_} -> ${type_}\n${data_}\n\n`, EIO.APPEND)
         const l = new Log({ worker_, task_, type_, data_ }, user_) ;;
         if(vlevel<=VERBOSE_PERSISTANCE_THRESHOLD) l.log()
         if(VERBOSE>=vlevel) {

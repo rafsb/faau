@@ -766,18 +766,18 @@ Object.defineProperty(Object.prototype, "spy", {
 // | (__| | (_| \__ \__ \  __/\__ \
 //  \___|_|\__,_|___/___/\___||___/
 
-class FDate extends Date {
+class fdate extends Date {
 
     plus(n) {
         let
         date = new Date(this.valueOf());
         date.setDate(date.getDate() + n);
-        return new FDate(date)
+        return new fdate(date)
     }
 
     export(format = TS_MASK){
         let
-        d = this || FDate.now()
+        d = this || fdate.now()
         , arr = format.split("")
         ;;
         arr.each(n => {
@@ -807,13 +807,13 @@ class FDate extends Date {
     }
 
     isValid(date){
-        if(date) return (new FDate(date)).isValid();
+        if(date) return (new fdate(date)).isValid();
         else if(this.getTime()) return this
         return null
     }
 
     now(){
-        return new FDate()
+        return new fdate()
     }
 
     time(){
@@ -830,7 +830,7 @@ class FDate extends Date {
         var dat ;;
 
         if(!isNaN(datestr)) {
-            dat = new FDate();
+            dat = new fdate();
             dat.setTime(datestr);
         }
         if(dat&&dat.getTime()) return dat
@@ -859,7 +859,7 @@ class FDate extends Date {
         return datefound + (hourfound ? `T${hourfound}` : '')
 
 
-        dat = new FDate(datestr)
+        dat = new fdate(datestr)
         if(dat&&dat.getTime()) return dat
 
         MONTHS.map((m, i) => datestr = datestr.replace(m, (((i++%12)+1)+"").fill("0", 2, -1)));
@@ -877,17 +877,17 @@ class FDate extends Date {
             datefound = datefound.slice(0, 10)
         }
 
-        datefound = datefound ? new FDate(datefound+"T03:00:00.000Z") : false;
+        datefound = datefound ? new fdate(datefound+"T03:00:00.000Z") : false;
 
         return datefound //&& datefound.as('Y')*1 > 1000 ? datefound : false
     }
 
     static now(){
-        return new FDate()
+        return new fdate()
     }
 
     static plus(n=1){
-        return FDate.now().plus(n)
+        return fdate.now().plus(n)
     }
 
     static time(){
@@ -895,27 +895,27 @@ class FDate extends Date {
     }
 
     static at(n){
-        return FDate.now().plus(n)
+        return fdate.now().plus(n)
     }
 
     static as(format=TS_MASK){
-        return FDate.now().export(format)
+        return fdate.now().export(format)
     }
 
     static format(format){
-        return FDate.now().export(format)
+        return fdate.now().export(format)
     }
 
     static cast(date){
-        return new FDate(date || new Date)
+        return new fdate(date || new Date)
     }
 
     static yday(){
-        return parseInt(FDate.plus(-1).getTime()/1000)*1000
+        return parseInt(fdate.plus(-1).getTime()/1000)*1000
     }
 
     static tday(){
-        return parseInt(FDate.time()/1000)*1000
+        return parseInt(fdate.time()/1000)*1000
     }
 }
 
@@ -1284,7 +1284,7 @@ class fw {
             req = await fetch(url, args ? {
                 method
                 , headers : new Headers(head)
-                , body    : FObject.json(blend(args || {}, { _ts: FDate.time() }))
+                , body    : FObject.json(blend(args || {}, { _ts: fdate.time() }))
             } : { method, headers: new Headers(head) })
             , res = await req.text()
             ;;

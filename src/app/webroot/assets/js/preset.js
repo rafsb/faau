@@ -35,7 +35,7 @@ wsport = location.port
     const
     callback = typeof data == "function" ? data : ((data.callback ?  data.callback : data.cb) || null)
     , emitter = callback ? "fn" + callback.toString().hash() : null
-    , payload = blend(data?.data||{}, { ts: FDate.time(), path, emitter, device: fw.device })
+    , payload = blend(data?.data||{}, { ts: fdate.time(), path, emitter, device: fw.device })
     ;;
     if(callback) socket_callbacks[emitter] = callback
     let req ;;

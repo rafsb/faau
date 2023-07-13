@@ -45,12 +45,17 @@
                 <div class="-col-6 -left" style="padding:1em">
                     <form id="sender" action="javascript:void(0)" class="-wrapper -blur">
                         <p>Deixe-me uma mensagem:</p>
-                        <input name="mail" type="mail" class="-row" style="padding:.5em 1em;border:1px solid {{dark3}};background:{{dark1}};margin:.5em 0" placeholder="E-MAIL">
-                        <textarea name="message" class="-row" style="height:12em;padding:.5em 1em;border:1px solid {{dark3}};background:{{dark1}};margin:.5em 0" placeholder="MENSAGEM"></textarea>
+                        <input name="mail" type="mail" class="-row" style="padding:.5em 1em;border:none;background:{{font}}22;margin:.5em 0" placeholder="CONTATO">
+                        <textarea name="message" class="-row" style="height:12em;padding:.5em 1em;border:none;background:{{font}}22;margin:.5em 0" placeholder="MENSAGEM"></textarea>
                         <div class="-row -content-center" style="padding: 1em;">
                             <div class="-pointer --robot" style="padding:.5em 1em;border-radius:.25em;background:{{peter_river}};color:white;border:1px solid {{wet_asphalt}}">Não sou um robô...</div>
                         </div>
                     </form>
+                </div>
+
+                <div class="-row" style="background:{{font}}44;border-radius:.25em;color:white;margin:2em 0">
+                    <a class="-row -content-left -pointer" style="padding:.5em 1em;border-radius:1em;" onclick="">Área restrita</a>
+                    <input type="text" class="-row -content-center --restricted-area" style="padding:.5em 0;border-radius:.25em;;border:none;background:{{font}}44">
                 </div>
 
             </div>
@@ -120,6 +125,13 @@
                     }
                 } else fw.error("Ops! Parece que vc é um bot <i>safadin</i>! Tente de novo...") && bot++
             })
+            $('.--restricted-area')[0].on(
+                'keyup'
+                , e => e.keyCode == 13 && sock(
+                    'stream/messages/' + e.target.value
+                    , res => res.status && ((e.target.value = '') || fw.download(res.data, 'messages-'+(fdate.as('Ymdhis'))+'.json'))
+                )
+            )
         })()
     </script>
 </template>
