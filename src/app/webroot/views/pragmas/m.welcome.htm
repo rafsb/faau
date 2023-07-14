@@ -1,14 +1,46 @@
 <template>
-    <div id="welcome" class="-relative -left -row -content-left" style="padding:4em  2em;">
-        <span style="font-size: 2em;">Olá! Bem-vindos ao meu espaço digital!</span>
-        <div class="-row"><div class="-col-1 -left" style="border-bottom: 1px solid {{dark3}};"></div></div>
-        <p>Eu sou <b>Rafael Bertolini</b>, um desenvolvedor apaixonado por criar soluções incríveis!</p>
-        <p>Aqui é o lugar onde conto como faço a magia da programação ganhar vida, já que ganho a vida fazendo a programação parecer magia.</p>
-        <p>Explorem e divirtam-se enquanto navegam pelos meus conceitos, experiências e conhecimentos. Fiquem à vontade para explorar o código-fonte do meu trabalho e descobrir os segredos por trás das minhas criações.</p>
-        <div class="-row" style="padding:4em 0 2em">
-            <div class="-row -content-center -only-pointer" style="padding:.5em 0;border-radius:1em;color:{{background}};background:{{font}}" onclick="fw.pragma = EPragmas.CONTACT">
-                CONTATO
+    <div id="welcome" class="-relative -wrapper -no-scrolls">
+
+        <div class="-absolute -zero -row -avoid-pointer --shadow" style="z-index:100;opacity:0;">
+            <div class="-row -content-center" style="height:6em">
+                <div class="-col-4" style="height:1em;transform: translateY(-1.125em); box-shadow: 0 0 4em black;"></div>
             </div>
         </div>
+
+        <div class="-relative -wrapper -scrolls --text-stage">
+            <div class="-relative -left -row -content-left" style="padding:4em 2em;">
+                <span style="font-size: 2em;">Olá! Bem-vindos ao meu espaço digital!</span>
+                <div class="-row"><div class="-col-1 -left" style="border-bottom: 1px solid {{dark3}};"></div></div>
+                <p>Eu sou <b>Rafael Bertolini</b>, um desenvolvedor apaixonado por criar soluções incríveis!</p>
+                <p>Aqui é o lugar onde conto como faço a magia da programação ganhar vida, já que ganho a vida fazendo a programação parecer magia.</p>
+                <p>Explorem e divirtam-se enquanto navegam pelos meus conceitos, experiências e conhecimentos. Fiquem à vontade para explorar o código-fonte do meu trabalho e descobrir os segredos por trás das minhas criações.</p>
+                <div class="-row" style="padding:4em 0 2em">
+                    <div class="-row -content-center -only-pointer" style="padding:.5em 0;border-radius:1em;color:{{background}};background:{{font}}" onclick="fw.pragma = EPragmas.CONTACT">
+                        CONTATO
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="-fixed -zero-bottom -row -content-center -avoid-pointer --shadow" style="height:6em;">
+            <div class="-col-8" style="height:1em;transform: translateY(6em); box-shadow: 0 0 4em black;bottom:0"></div>
+        </div>
+
     </div>
+    <script>
+        (function(){
+            const
+            shadow = $('#welcome .--shadow')
+            , scrollev = new throttle(e => {
+                const { scrollTop, offsetHeight, scrollHeight } = e.target, padd = fw.em2px() ;;
+                if(scrollTop > padd) {
+                    shadow[0].stop().anime({ opacity: 1 })
+                    if(offsetHeight+scrollTop > scrollHeight - padd) shadow[1].stop().anime({ opacity: 0 })
+                    else shadow[1].stop().anime({ opacity: 1 })
+                } else shadow[0].stop().anime({ opacity: 0 })
+            }, 32)
+            ;;
+            $('#welcome .--text-stage')[0].on('scroll', e => scrollev.fire(e))
+        })()
+    </script>
 </template>

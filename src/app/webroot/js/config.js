@@ -112,3 +112,5 @@ $('#app')[0].on('mousemove', e => {
 })
 
 bootloader.loadComponents.fire()
+
+window.onresize = _ => location.reload()
