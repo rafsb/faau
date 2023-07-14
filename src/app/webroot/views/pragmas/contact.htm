@@ -110,6 +110,7 @@
                         pass = true
                         const sender = e.target.upFind('form').json() ;;
                         if(!sender.mail) fw.error("Preencha seu email, por favor...") && (pass=false)
+                        if(sender.mail && !sender.mail.match(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/)) fw.error("Preencha seu email corretamente, por favor...") && (pass=false)
                         if(!sender.message) fw.error("Hey! Não esqueça de me deixar uma mensagem ali no campo '<i>MENSAGEM'</i>...") && (pass=false)
                         if(pass) sock('stats/messages', {
                             data: sender
